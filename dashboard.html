@@ -505,7 +505,7 @@
       });
 
       // Appeler Make pour envoyer le SMS de récompense
-      if (MAKE_WEBHOOK_RECOMPENSE !== 'WEBHOOK_RECOMPENSE_ICI') {
+      if (MAKE_WEBHOOK_RECOMPENSE !== 'https://hook.eu2.make.com/03hyiymtnxshgvr7xhpb1vmed833afvt') {
         await fetch(MAKE_WEBHOOK_RECOMPENSE, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
