@@ -502,7 +502,7 @@
   async function confirmValidation() {
    console.log('confirmValidation appelé avec pendingRecordId:', pendingRecordId);
     if (!pendingRecordId) return;
-    closeModal();
+    document.getElementById('modal').classList.remove('open');
 
     // Mettre à jour le statut dans Airtable
     try {
@@ -516,7 +516,7 @@
       });
 
       // Appeler Make pour envoyer le SMS de récompense
-      if (MAKE_WEBHOOK_RECOMPENSE !== 'https://hook.eu2.make.com/03hyiymtnxshgvr7xhpb1vmed833afvt') {
+      if (MAKE_WEBHOOK_RECOMPENSE !== 'WEBHOOK_RECOMPENSE_ICI') {
         await fetch(MAKE_WEBHOOK_RECOMPENSE, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -529,6 +529,9 @@
     } catch (e) {
       showToast('Erreur lors de la validation.');
     }
+   pendingRecordId = null;
+pendingPrenom = null;
+pendingTelephone = null;
   }
 
   function showToast(msg) {
