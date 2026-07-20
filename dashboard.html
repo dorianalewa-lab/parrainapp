@@ -380,6 +380,7 @@
   let currentSalon = null;
   let pendingRecordId = null;
   let pendingPrenom = null;
+ let pendingTelephone = null;
   let allRecords = [];
 
   // LOGIN
@@ -446,7 +447,7 @@
     document.getElementById('clients-tbody').addEventListener('click', function(e) {
       const btn = e.target.closest('.btn-validate');
       if (btn) {
-        openModal(btn.dataset.id, btn.dataset.prenom);
+        openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
       }
     }, { once: true });
 
@@ -464,7 +465,7 @@
         <td><span class="badge ${statut.toLowerCase()}">${statut}</span></td>
         <td>
           ${!isRecompense
-            ? `<button class="btn-validate" data-id="${r.id}" data-prenom="${(f['Prénom'] || '').replace(/"/g, '&quot;')}">✓ Filleul venu</button>`
+            ? `<button class="btn-validate" data-id="${r.id}" data-prenom="${(f['Prénom'] || '').replace(/"/g, '&quot;')}" data-telephone="${f['Téléphone'] || ''}">✓ Filleul venu</button>`
             : `<span style="font-size:13px;color:var(--green)">✓ Récompensé</span>`
           }
         </td>
@@ -484,9 +485,10 @@
   }
 
   // MODAL
-  function openModal(recordId, prenom) {
-    pendingRecordId = recordId;
-    pendingPrenom = prenom;
+  function openModal(recordId, prenom, telephone) {
+  pendingRecordId = recordId;
+  pendingPrenom = prenom;
+  pendingTelephone = telephone;
     document.getElementById('modal-text').textContent = `Confirmes-tu que le filleul de ${prenom} est venu ? Sa récompense sera déclenchée automatiquement.`;
     document.getElementById('modal').classList.add('open');
   }
@@ -517,7 +519,7 @@
         await fetch(MAKE_WEBHOOK_RECOMPENSE, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recordId: pendingRecordId, prenom: pendingPrenom, salon: currentSalon })
+          body: JSON.stringify({ recordId: pendingRecordId, prenom: pendingPrenom, telephone: pendingTelephone, salon: currentSalon })
         });
       }
 
