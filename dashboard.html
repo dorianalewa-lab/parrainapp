@@ -444,13 +444,12 @@
     tbody.innerHTML = '';
 
     // Event delegation for validate buttons
-    document.getElementById('clients-tbody').addEventListener('click', function(e) {
-      const btn = e.target.closest('.btn-validate');
-      if (btn) {
-        openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
-      }
-    });
-
+    document.getElementById('clients-tbody').onclick = function(e) {
+  const btn = e.target.closest('.btn-validate');
+  if (btn) {
+    openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
+  }
+}
     records.forEach(r => {
       const f = r.fields;
       const statut = f['Statut'] || 'Contacté';
