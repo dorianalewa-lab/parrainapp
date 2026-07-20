@@ -500,6 +500,7 @@
   }
 
   async function confirmValidation() {
+   console.log('confirmValidation appelé avec pendingRecordId:', pendingRecordId);
     if (!pendingRecordId) return;
     closeModal();
 
