@@ -286,10 +286,41 @@
   }
   .toast.show { opacity: 1; }
 
-  @media (max-width: 600px) {
-    .stats-grid { grid-template-columns: 1fr; }
+  /* MOBILE CARDS */
+  .cards-list { display: none; }
+
+  @media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-card { padding: 16px; }
+    .stat-card .value { font-size: 28px; }
+    .table-wrap table, .table-wrap thead { display: none; }
+    .cards-list { display: block; }
     .content { padding: 16px; }
-    .topbar { padding: 16px; }
+    .topbar { padding: 12px 16px; }
+    .topbar .logo { font-size: 18px; }
+    .section-title { font-size: 16px; }
+  }
+
+  .client-card {
+    padding: 16px;
+    border-bottom: 1px solid #F3F4F6;
+  }
+  .client-card:last-child { border-bottom: none; }
+  .client-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .client-card-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--dark);
+  }
+  .client-card-meta {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 12px;
   }
 </style>
 </head>
@@ -318,7 +349,7 @@
 
   <div class="content">
     <!-- STATS -->
-    <div class="stats-grid" id="stats-grid">
+    <div class="stats-grid">
       <div class="stat-card">
         <div class="label">Clients inscrits</div>
         <div class="value purple" id="stat-total">—</div>
@@ -333,10 +364,12 @@
       </div>
     </div>
 
-    <!-- TABLE CLIENTS -->
+    <!-- TABLE CLIENTS (desktop) -->
     <div class="section-title">Clients inscrits au parrainage</div>
     <div class="table-wrap">
       <div class="loading" id="loading">Chargement...</div>
+
+      <!-- Desktop table -->
       <table id="clients-table" style="display:none">
         <thead>
           <tr>
@@ -349,6 +382,10 @@
         </thead>
         <tbody id="clients-tbody"></tbody>
       </table>
+
+      <!-- Mobile cards -->
+      <div class="cards-list" id="cards-list"></div>
+
       <div class="empty" id="empty-state" style="display:none">
         <div class="icon">👥</div>
         Aucun client inscrit pour l'instant.<br>Partagez votre QR code en caisse !
@@ -361,7 +398,7 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h3>Valider la visite</h3>
-    <p id="modal-text">Confirmes-tu que ce filleul est venu ? La récompense du parrain sera déclenchée automatiquement.</p>
+    <p id="modal-text">Confirmes-tu que ce filleul est venu ?</p>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Annuler</button>
       <button class="btn-confirm" onclick="confirmValidation()">Confirmer ✓</button>
@@ -373,15 +410,17 @@
 
 <script>
   const AIRTABLE_TOKEN = 'patvJ5u6oV1TidvWf.8da254634201af406ef37725f3405ce32400ab7d9e2dbca445d6aa1741ca23a5';
-  const BASE_ID = 'appWzruoPWk9psmrx'; // À remplacer par ton vrai Base ID Airtable
+  const BASE_ID = 'appWzruoPWk9psmrx';
   const TABLE = 'Clients';
-  const MAKE_WEBHOOK_RECOMPENSE = 'https://hook.eu2.make.com/03hyiymtnxshgvr7xhpb1vmed833afvt'; // À créer dans Make
+  const MAKE_WEBHOOK_RECOMPENSE = 'https://hook.eu2.make.com/03hyiymtnxshgvr7xhpb1vmed833afvt';
 
   let currentSalon = null;
   let pendingRecordId = null;
   let pendingPrenom = null;
- let pendingTelephone = null;
+  let pendingTelephone = null;
   let allRecords = [];
+
+  const isMobile = () => window.innerWidth <= 768;
 
   // LOGIN
   function handleLogin() {
@@ -415,14 +454,14 @@
   async function loadClients() {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('clients-table').style.display = 'none';
+    document.getElementById('cards-list').style.display = 'none';
     document.getElementById('empty-state').style.display = 'none';
 
     try {
       const filter = `FIND("${currentSalon}",LOWER({Prestataire}))`;
-      const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE}?filterByFormula=${encodeURIComponent(filter)}&sort[0][field]=Date première visite&sort[0][direction]=desc`;
+      const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE}?filterByFormula=${encodeURIComponent(filter)}&sort[0][field]=Date%20premi%C3%A8re%20visite&sort[0][direction]=desc`;
       const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
       const data = await res.json();
-
       allRecords = data.records || [];
       renderClients(allRecords);
       updateStats(allRecords);
@@ -439,56 +478,87 @@
       return;
     }
 
+    if (isMobile()) {
+      renderCards(records);
+    } else {
+      renderTable(records);
+    }
+  }
+
+  function renderTable(records) {
     document.getElementById('clients-table').style.display = 'table';
     const tbody = document.getElementById('clients-tbody');
     tbody.innerHTML = '';
 
-    // Event delegation for validate buttons
-    document.getElementById('clients-tbody').onclick = function(e) {
-  const btn = e.target.closest('.btn-validate');
-  if (btn) {
-    openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
-  }
-}
     records.forEach(r => {
       const f = r.fields;
       const statut = f['Statut'] || 'Contacté';
       const date = f['Date première visite'] ? new Date(f['Date première visite']).toLocaleDateString('fr-CH') : '—';
       const isRecompense = statut === 'Récompensé';
-
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${f['Prénom'] || '—'}</strong></td>
         <td style="color:var(--gray)">${f['Téléphone'] || '—'}</td>
         <td style="color:var(--gray)">${date}</td>
         <td><span class="badge ${statut.toLowerCase()}">${statut}</span></td>
-        <td>
-          ${!isRecompense
-            ? `<button class="btn-validate" data-id="${r.id}" data-prenom="${(f['Prénom'] || '').replace(/"/g, '&quot;')}" data-telephone="${f['Téléphone'] || ''}">✓ Filleul venu</button>`
-            : `<span style="font-size:13px;color:var(--green)">✓ Récompensé</span>`
-          }
-        </td>
+        <td>${!isRecompense
+          ? `<button class="btn-validate" data-id="${r.id}" data-prenom="${(f['Prénom'] || '').replace(/"/g, '&quot;')}" data-telephone="${f['Téléphone'] || ''}">✓ Filleul venu</button>`
+          : `<span style="font-size:13px;color:var(--green)">✓ Récompensé</span>`
+        }</td>
       `;
       tbody.appendChild(tr);
     });
+
+    tbody.onclick = function(e) {
+      const btn = e.target.closest('.btn-validate');
+      if (btn) openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
+    };
+  }
+
+  function renderCards(records) {
+    const cardsList = document.getElementById('cards-list');
+    cardsList.style.display = 'block';
+    cardsList.innerHTML = '';
+
+    records.forEach(r => {
+      const f = r.fields;
+      const statut = f['Statut'] || 'Contacté';
+      const date = f['Date première visite'] ? new Date(f['Date première visite']).toLocaleDateString('fr-CH') : '—';
+      const isRecompense = statut === 'Récompensé';
+
+      const card = document.createElement('div');
+      card.className = 'client-card';
+      card.innerHTML = `
+        <div class="client-card-top">
+          <span class="client-card-name">${f['Prénom'] || '—'}</span>
+          <span class="badge ${statut.toLowerCase()}">${statut}</span>
+        </div>
+        <div class="client-card-meta">${f['Téléphone'] || '—'} · ${date}</div>
+        ${!isRecompense
+          ? `<button class="btn-validate" data-id="${r.id}" data-prenom="${(f['Prénom'] || '').replace(/"/g, '&quot;')}" data-telephone="${f['Téléphone'] || ''}" style="width:100%">✓ Filleul venu</button>`
+          : `<span style="font-size:13px;color:var(--green)">✓ Récompensé</span>`
+        }
+      `;
+      cardsList.appendChild(card);
+    });
+
+    cardsList.onclick = function(e) {
+      const btn = e.target.closest('.btn-validate');
+      if (btn) openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
+    };
   }
 
   function updateStats(records) {
-    const total = records.length;
-    const actifs = records.filter(r => r.fields['Statut'] === 'Contacté' || r.fields['Statut'] === 'Parrainé').length;
-    const recompenses = records.filter(r => r.fields['Statut'] === 'Récompensé').length;
-
-    document.getElementById('stat-total').textContent = total;
-    document.getElementById('stat-actifs').textContent = actifs;
-    document.getElementById('stat-recompenses').textContent = recompenses;
+    document.getElementById('stat-total').textContent = records.length;
+    document.getElementById('stat-actifs').textContent = records.filter(r => ['Contacté','Parrainé'].includes(r.fields['Statut'])).length;
+    document.getElementById('stat-recompenses').textContent = records.filter(r => r.fields['Statut'] === 'Récompensé').length;
   }
 
   // MODAL
   function openModal(recordId, prenom, telephone) {
-  pendingRecordId = recordId;
-   console.log('openModal appelé avec recordId:', recordId);
-  pendingPrenom = prenom;
-  pendingTelephone = telephone;
+    pendingRecordId = recordId;
+    pendingPrenom = prenom;
+    pendingTelephone = telephone;
     document.getElementById('modal-text').textContent = `Confirmes-tu que le filleul de ${prenom} est venu ? Sa récompense sera déclenchée automatiquement.`;
     document.getElementById('modal').classList.add('open');
   }
@@ -497,41 +567,39 @@
     document.getElementById('modal').classList.remove('open');
     pendingRecordId = null;
     pendingPrenom = null;
+    pendingTelephone = null;
   }
 
   async function confirmValidation() {
-   console.log('confirmValidation appelé avec pendingRecordId:', pendingRecordId);
     if (!pendingRecordId) return;
+    const recordId = pendingRecordId;
+    const prenom = pendingPrenom;
+    const telephone = pendingTelephone;
     document.getElementById('modal').classList.remove('open');
+    pendingRecordId = null;
+    pendingPrenom = null;
+    pendingTelephone = null;
 
-    // Mettre à jour le statut dans Airtable
     try {
-      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE}/${pendingRecordId}`, {
+      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE}/${recordId}`, {
         method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${AIRTABLE_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ fields: { Statut: 'Récompensé' } })
       });
 
-      // Appeler Make pour envoyer le SMS de récompense
       if (MAKE_WEBHOOK_RECOMPENSE !== 'WEBHOOK_RECOMPENSE_ICI') {
         await fetch(MAKE_WEBHOOK_RECOMPENSE, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recordId: pendingRecordId, prenom: pendingPrenom, telephone: pendingTelephone, salon: currentSalon })
+          body: JSON.stringify({ recordId, prenom, telephone, salon: currentSalon })
         });
       }
 
-      showToast(`✓ Récompense de ${pendingPrenom} déclenchée !`);
+      showToast(`✓ Récompense de ${prenom} déclenchée !`);
       await loadClients();
     } catch (e) {
       showToast('Erreur lors de la validation.');
     }
-   pendingRecordId = null;
-pendingPrenom = null;
-pendingTelephone = null;
   }
 
   function showToast(msg) {
@@ -541,17 +609,16 @@ pendingTelephone = null;
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  // LOGIN PAR ENTER
   document.getElementById('login-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
   });
 
-  // AUTO LOGIN
+  window.addEventListener('resize', () => {
+    if (allRecords.length > 0) renderClients(allRecords);
+  });
+
   const saved = localStorage.getItem('parrainapp_salon');
-  if (saved) {
-    currentSalon = saved;
-    showDashboard();
-  }
+  if (saved) { currentSalon = saved; showDashboard(); }
 </script>
 </body>
 </html>
