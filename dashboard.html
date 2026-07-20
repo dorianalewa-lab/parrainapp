@@ -449,7 +449,7 @@
       if (btn) {
         openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
       }
-    }, { once: true });
+    });
 
     records.forEach(r => {
       const f = r.fields;
