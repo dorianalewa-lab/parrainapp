@@ -486,6 +486,7 @@
   // MODAL
   function openModal(recordId, prenom, telephone) {
   pendingRecordId = recordId;
+   console.log('openModal appelé avec recordId:', recordId);
   pendingPrenom = prenom;
   pendingTelephone = telephone;
     document.getElementById('modal-text').textContent = `Confirmes-tu que le filleul de ${prenom} est venu ? Sa récompense sera déclenchée automatiquement.`;
