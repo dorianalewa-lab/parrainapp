@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParrainApp – Programme de parrainage</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple: #5B21B6;
+    --purple-light: #EDE9FE;
+    --purple-mid: #7C3AED;
+    --dark: #1E1B4B;
+    --gray: #6B7280;
+    --light: #F9F8FF;
+    --white: #FFFFFF;
+    --green: #059669;
+    --radius: 16px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 24px;
+    max-width: 420px;
+    width: 100%;
+    padding: 40px 32px;
+    box-shadow: 0 4px 40px rgba(91,33,182,0.08);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--purple-light);
+    color: var(--purple);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--purple-mid);
+    border-radius: 50%;
+  }
+
+  .salon-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .tagline {
+    font-size: 15px;
+    color: var(--gray);
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .offer-box {
+    background: var(--purple-light);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .offer-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--purple);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 22px;
+  }
+
+  .offer-text strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 2px;
+  }
+
+  .offer-text span {
+    font-size: 13px;
+    color: var(--purple);
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  input[type="tel"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--dark);
+    background: var(--white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  input[type="text"]:focus,
+  input[type="tel"]:focus {
+    border-color: var(--purple-mid);
+  }
+
+  .hint {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  .phone-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .phone-wrapper:focus-within {
+    border-color: var(--purple-mid);
+  }
+
+  .phone-prefix {
+    padding: 14px 12px 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--dark);
+    font-weight: 500;
+    background: #F9F8FF;
+    border-right: 1.5px solid #E5E7EB;
+    flex-shrink: 0;
+  }
+
+  .phone-wrapper input {
+    border: none;
+    border-radius: 0;
+    flex: 1;
+  }
+
+  .phone-wrapper input:focus {
+    border-color: transparent;
+  }
+
+  .consent-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 16px;
+    background: #F9FAFB;
+    border-radius: 12px;
+  }
+
+  .consent-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--purple-mid);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+
+  .consent-group label {
+    font-size: 13px;
+    color: var(--gray);
+    margin: 0;
+    font-weight: 400;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--purple);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 8px;
+  }
+
+  .btn:hover { background: var(--purple-mid); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: #C4B5FD; cursor: not-allowed; }
+
+  /* SUCCESS STATE */
+  .success {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    background: #D1FAE5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+  }
+
+  .success h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .success p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ERROR */
+  .error-msg {
+    display: none;
+    font-size: 13px;
+    color: #DC2626;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  .powered {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+    color: #C4B5FD;
+  }
+
+  .powered span {
+    color: var(--purple);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- FORM STATE -->
+  <div id="form-state">
+    <div class="badge">Programme parrainage</div>
+
+    <h1 class="salon-name" id="salon-name">ParrainApp</h1>
+    <p class="tagline">Recommande-nous à une amie et gagne une récompense dès qu'elle vient nous rendre visite.</p>
+
+    <div class="offer-box">
+      <div class="offer-icon">🎁</div>
+      <div class="offer-text">
+        <strong>15% de réduction</strong>
+        <span>offerts sur ta prochaine visite</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="prenom">Ton prénom</label>
+      <input type="text" id="prenom" placeholder="Julie" autocomplete="given-name">
+    </div>
+
+    <div class="form-group">
+      <label for="telephone">Ton numéro de téléphone</label>
+      <div class="phone-wrapper">
+        <span class="phone-prefix">+41</span>
+        <input type="tel" id="telephone" placeholder="79 123 45 67" autocomplete="tel">
+      </div>
+    </div>
+
+    <div class="consent-group">
+      <input type="checkbox" id="consent">
+      <label for="consent">J'accepte de recevoir un SMS de parrainage de <strong id="salon-consent">ce salon</strong> et comprends que mon numéro sera utilisé uniquement dans ce cadre.</label>
+    </div>
+
+    <button class="btn" id="submit-btn" onclick="handleSubmit()">Je participe →</button>
+    <p class="error-msg" id="error-msg">Une erreur est survenue. Réessaie dans quelques secondes.</p>
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="success" id="success-state">
+    <div class="success-icon">✓</div>
+    <h2>C'est parti !</h2>
+    <p>Tu vas recevoir un SMS dans quelques secondes avec ton lien de parrainage personnel.<br><br>Partage-le à une amie et gagne ta récompense dès qu'elle vient nous voir. 🎉</p>
+  </div>
+
+  <p class="powered">Propulsé par <span>ParrainApp</span></p>
+</div>
+
+<script>
+  // Lecture des paramètres URL
+  const params = new URLSearchParams(window.location.search);
+  const salonParam = params.get('salon') || 'ParrainApp';
+  const salonDisplay = salonParam.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+  document.getElementById('salon-name').textContent = salonDisplay;
+  document.getElementById('salon-consent').textContent = salonDisplay;
+
+  const MAKE_WEBHOOK = 'https://hook.eu2.make.com/gwyvssick46mmth2p7me9pcjp4386c5c';
+
+  async function handleSubmit() {
+    const prenom = document.getElementById('prenom').value.trim();
+    const telephone = document.getElementById('telephone').value.trim().replace(/\s/g, '');
+    const consent = document.getElementById('consent').checked;
+    const btn = document.getElementById('submit-btn');
+    const errorMsg = document.getElementById('error-msg');
+
+    errorMsg.style.display = 'none';
+
+    if (!prenom || !telephone || !consent) {
+      errorMsg.textContent = 'Remplis tous les champs et accepte les conditions.';
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours…';
+
+    try {
+      await fetch(MAKE_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prenom: prenom,
+          telephone: '+41' + telephone,
+          salon: salonParam,
+          consentement: true,
+          source: 'qr_code'
+        })
+      });
+
+      document.getElementById('form-state').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Je participe →';
+      errorMsg.textContent = 'Une erreur est survenue. Réessaie dans quelques secondes.';
+      errorMsg.style.display = 'block';
+    }
+  }
+</script>
+
+</body>
+</html>
