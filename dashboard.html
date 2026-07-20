@@ -373,9 +373,9 @@
 
 <script>
   const AIRTABLE_TOKEN = 'patvJ5u6oV1TidvWf.8da254634201af406ef37725f3405ce32400ab7d9e2dbca445d6aa1741ca23a5';
-  const BASE_ID = 'appXXXXXXXXXXXXXX'; // À remplacer par ton vrai Base ID Airtable
+  const BASE_ID = 'appWzruoPWk9psmrx'; // À remplacer par ton vrai Base ID Airtable
   const TABLE = 'Clients';
-  const MAKE_WEBHOOK_RECOMPENSE = 'WEBHOOK_RECOMPENSE_ICI'; // À créer dans Make
+  const MAKE_WEBHOOK_RECOMPENSE = 'https://hook.eu2.make.com/03hyiymtnxshgvr7xhpb1vmed833afvt'; // À créer dans Make
 
   let currentSalon = null;
   let pendingRecordId = null;
@@ -513,7 +513,7 @@
       });
 
       // Appeler Make pour envoyer le SMS de récompense
-      if (MAKE_WEBHOOK_RECOMPENSE !== 'WEBHOOK_RECOMPENSE_ICI') {
+      if (MAKE_WEBHOOK_RECOMPENSE !== 'https://hook.eu2.make.com/03hyiymtnxshgvr7xhpb1vmed833afvt') {
         await fetch(MAKE_WEBHOOK_RECOMPENSE, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
