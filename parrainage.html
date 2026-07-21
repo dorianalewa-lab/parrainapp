@@ -173,7 +173,8 @@
     Elle recevra aussi une récompense de notre part dès que tu viens nous rendre visite. 🎁
   </div>
 
-  <a class="btn" id="btn-rdv" href="#">Prendre rendez-vous →</a>
+  <a class="btn" id="btn-rdv" href="#" style="display:none">Prendre rendez-vous →</a>
+  <p id="btn-placeholder" style="text-align:center;padding:16px;background:var(--purple-light);color:var(--purple);border-radius:12px;font-size:14px;line-height:1.5">Le salon te contactera bientôt pour organiser ton rendez-vous.</p>
 
   <p class="powered">Propulsé par <span>ParrainApp</span></p>
 </div>
@@ -188,7 +189,6 @@
   document.getElementById('prenom-parrain').textContent = parrain;
   document.getElementById('prenom-parrain-2').textContent = parrain;
   document.getElementById('salon-display').textContent = salonDisplay;
-  document.getElementById('btn-rdv').href = `https://wa.me/41786222757?text=Bonjour%2C%20je%20viens%20de%20la%20part%20de%20${parrain}%20et%20j%27aimerais%20prendre%20rendez-vous`;
 </script>
 
 </body>

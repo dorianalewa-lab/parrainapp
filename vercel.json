@@ -1,6 +1,5 @@
 {
-  "rewrites": [
-    { "source": "/parrainage", "destination": "/parrainage.html" },
-    { "source": "/dashboard", "destination": "/dashboard.html" }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false
 }

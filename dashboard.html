@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp — Dashboard</title>
+<title>ParrainApp — Dashboard (bientôt disponible)</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,610 +15,66 @@
     --gray: #6B7280;
     --light: #F9F8FF;
     --white: #FFFFFF;
-    --green: #059669;
-    --green-light: #D1FAE5;
-    --red: #DC2626;
-    --red-light: #FEE2E2;
-    --amber: #D97706;
-    --amber-light: #FEF3C7;
   }
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--light);
     min-height: 100vh;
-    color: var(--dark);
-  }
-
-  /* LOGIN */
-  .login-wrap {
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 24px 16px;
+    color: var(--dark);
   }
-  .login-card {
+  .card {
     background: var(--white);
     border-radius: 24px;
-    padding: 48px 36px;
-    max-width: 380px;
+    max-width: 420px;
     width: 100%;
+    padding: 48px 32px;
     box-shadow: 0 4px 40px rgba(91,33,182,0.08);
     text-align: center;
   }
-  .login-card .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--dark);
-    margin-bottom: 8px;
-  }
-  .login-card .logo span { color: var(--purple); }
-  .login-card p { font-size: 14px; color: var(--gray); margin-bottom: 32px; }
-  .login-card input {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1.5px solid #E5E7EB;
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--dark);
-    outline: none;
-    margin-bottom: 12px;
-    transition: border-color 0.2s;
-  }
-  .login-card input:focus { border-color: var(--purple-mid); }
-  .login-error { font-size: 13px; color: var(--red); margin-bottom: 12px; display: none; }
-
-  /* MAIN */
-  .main { display: none; }
-  .topbar {
-    background: var(--white);
-    border-bottom: 1px solid #F3F4F6;
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .topbar .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--dark);
-  }
-  .topbar .logo span { color: var(--purple); }
-  .topbar .salon-badge {
+  .icon {
+    width: 72px;
+    height: 72px;
     background: var(--purple-light);
-    color: var(--purple);
-    padding: 6px 14px;
-    border-radius: 100px;
-    font-size: 13px;
-    font-weight: 500;
-  }
-  .topbar .logout {
-    background: none;
-    border: none;
-    font-size: 13px;
-    color: var(--gray);
-    cursor: pointer;
-    margin-left: 16px;
-  }
-  .topbar .logout:hover { color: var(--red); }
-
-  .content { padding: 32px; max-width: 1000px; margin: 0 auto; }
-
-  /* STATS */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-  .stat-card {
-    background: var(--white);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 2px 12px rgba(91,33,182,0.05);
-  }
-  .stat-card .label {
-    font-size: 13px;
-    color: var(--gray);
-    margin-bottom: 8px;
-  }
-  .stat-card .value {
-    font-family: 'Syne', sans-serif;
-    font-size: 36px;
-    font-weight: 700;
-    color: var(--dark);
-  }
-  .stat-card .value.purple { color: var(--purple); }
-  .stat-card .value.green { color: var(--green); }
-
-  /* TABLE */
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--dark);
-    margin-bottom: 16px;
-  }
-  .table-wrap {
-    background: var(--white);
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(91,33,182,0.05);
-    overflow: hidden;
-    margin-bottom: 32px;
-  }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { background: var(--dark); }
-  thead th {
-    padding: 14px 16px;
-    text-align: left;
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.7);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  tbody tr { border-bottom: 1px solid #F3F4F6; transition: background 0.15s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--light); }
-  tbody td { padding: 14px 16px; font-size: 14px; color: var(--dark); }
-
-  .badge {
-    display: inline-flex;
-    padding: 4px 10px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-  .badge.contacté { background: var(--amber-light); color: var(--amber); }
-  .badge.parrainé { background: var(--purple-light); color: var(--purple); }
-  .badge.récompensé { background: var(--green-light); color: var(--green); }
-
-  .btn-validate {
-    padding: 7px 14px;
-    background: var(--green);
-    color: var(--white);
-    border: none;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-validate:hover { background: #047857; }
-  .btn-validate:disabled { background: #D1FAE5; color: var(--green); cursor: not-allowed; }
-
-  .btn { 
-    padding: 14px 24px;
-    background: var(--purple);
-    color: var(--white);
-    border: none;
-    border-radius: 12px;
-    font-family: 'Syne', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.2s;
-  }
-  .btn:hover { background: var(--purple-mid); }
-
-  .empty {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--gray);
-    font-size: 14px;
-  }
-  .empty .icon { font-size: 36px; margin-bottom: 12px; }
-
-  .loading {
-    text-align: center;
-    padding: 48px;
-    color: var(--gray);
-    font-size: 14px;
-  }
-
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    z-index: 100;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
   }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--white);
-    border-radius: 20px;
-    padding: 32px;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-  }
-  .modal h3 {
+  h1 {
     font-family: 'Syne', sans-serif;
-    font-size: 20px;
-    color: var(--dark);
-    margin-bottom: 8px;
-  }
-  .modal p { font-size: 14px; color: var(--gray); margin-bottom: 24px; line-height: 1.6; }
-  .modal-actions { display: flex; gap: 12px; }
-  .btn-cancel {
-    flex: 1;
-    padding: 12px;
-    background: none;
-    border: 1.5px solid #E5E7EB;
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    color: var(--gray);
-  }
-  .btn-confirm {
-    flex: 1;
-    padding: 12px;
-    background: var(--green);
-    border: none;
-    border-radius: 10px;
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    color: var(--white);
-  }
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--dark);
-    color: var(--white);
-    padding: 14px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 200;
-  }
-  .toast.show { opacity: 1; }
-
-  /* MOBILE CARDS */
-  .cards-list { display: none; }
-
-  @media (max-width: 768px) {
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .stat-card { padding: 16px; }
-    .stat-card .value { font-size: 28px; }
-    .table-wrap table, .table-wrap thead { display: none; }
-    .cards-list { display: block; }
-    .content { padding: 16px; }
-    .topbar { padding: 12px 16px; }
-    .topbar .logo { font-size: 18px; }
-    .section-title { font-size: 16px; }
-  }
-
-  .client-card {
-    padding: 16px;
-    border-bottom: 1px solid #F3F4F6;
-  }
-  .client-card:last-child { border-bottom: none; }
-  .client-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  .client-card-name {
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--dark);
-  }
-  .client-card-meta {
-    font-size: 13px;
-    color: var(--gray);
+    font-size: 24px;
     margin-bottom: 12px;
   }
+  h1 span { color: var(--purple); }
+  p {
+    font-size: 15px;
+    color: var(--gray);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .powered {
+    margin-top: 32px;
+    font-size: 12px;
+    color: #C4B5FD;
+  }
+  .powered span { color: var(--purple); font-weight: 500; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="login-wrap" id="login-wrap">
-  <div class="login-card">
-    <div class="logo">Parrain<span>App</span></div>
-    <p>Connecte-toi avec le code de ton salon</p>
-    <input type="text" id="login-input" placeholder="ex: coiffeur-jean" autocomplete="off">
-    <p class="login-error" id="login-error">Code salon introuvable. Vérifie et réessaie.</p>
-    <button class="btn" onclick="handleLogin()">Accéder au dashboard →</button>
-  </div>
+<div class="card">
+  <div class="icon">🛠️</div>
+  <h1>Dashboard <span>en cours de reconstruction</span></h1>
+  <p>Nous mettons en place une authentification sécurisée et un vrai isolement multi-salons.</p>
+  <p>Reviens très bientôt.</p>
+  <p class="powered">Propulsé par <span>ParrainApp</span></p>
 </div>
 
-<!-- MAIN DASHBOARD -->
-<div class="main" id="main">
-  <div class="topbar">
-    <div class="logo">Parrain<span>App</span></div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="salon-badge" id="salon-badge"></span>
-      <button class="logout" onclick="handleLogout()">Déconnexion</button>
-    </div>
-  </div>
-
-  <div class="content">
-    <!-- STATS -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="label">Clients inscrits</div>
-        <div class="value purple" id="stat-total">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Parrainages actifs</div>
-        <div class="value" id="stat-actifs">—</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Récompenses déclenchées</div>
-        <div class="value green" id="stat-recompenses">—</div>
-      </div>
-    </div>
-
-    <!-- TABLE CLIENTS (desktop) -->
-    <div class="section-title">Clients inscrits au parrainage</div>
-    <div class="table-wrap">
-      <div class="loading" id="loading">Chargement...</div>
-
-      <!-- Desktop table -->
-      <table id="clients-table" style="display:none">
-        <thead>
-          <tr>
-            <th>Prénom</th>
-            <th>Téléphone</th>
-            <th>Date inscription</th>
-            <th>Statut</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="clients-tbody"></tbody>
-      </table>
-
-      <!-- Mobile cards -->
-      <div class="cards-list" id="cards-list"></div>
-
-      <div class="empty" id="empty-state" style="display:none">
-        <div class="icon">👥</div>
-        Aucun client inscrit pour l'instant.<br>Partagez votre QR code en caisse !
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL VALIDATION -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <h3>Valider la visite</h3>
-    <p id="modal-text">Confirmes-tu que ce filleul est venu ?</p>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
-      <button class="btn-confirm" onclick="confirmValidation()">Confirmer ✓</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-  const AIRTABLE_TOKEN = 'patvJ5u6oV1TidvWf.8da254634201af406ef37725f3405ce32400ab7d9e2dbca445d6aa1741ca23a5';
-  const BASE_ID = 'appWzruoPWk9psmrx';
-  const TABLE = 'Clients';
-  const MAKE_WEBHOOK_RECOMPENSE = 'https://hook.eu2.make.com/03hyiymtnxshgvr7xhpb1vmed833afvt';
-
-  let currentSalon = null;
-  let pendingRecordId = null;
-  let pendingPrenom = null;
-  let pendingTelephone = null;
-  let allRecords = [];
-
-  const isMobile = () => window.innerWidth <= 768;
-
-  // LOGIN
-  function handleLogin() {
-    const code = document.getElementById('login-input').value.trim().toLowerCase();
-    if (!code) return;
-    document.getElementById('login-error').style.display = 'none';
-    if (code === 'admin') {
-      currentSalon = 'parrainapp';
-      localStorage.setItem('parrainapp_salon', 'parrainapp');
-      showDashboard();
-    } else {
-      document.getElementById('login-error').style.display = 'block';
-    }
-  }
-
-  function handleLogout() {
-    localStorage.removeItem('parrainapp_salon');
-    currentSalon = null;
-    document.getElementById('main').style.display = 'none';
-    document.getElementById('login-wrap').style.display = 'flex';
-  }
-
-  async function showDashboard() {
-    document.getElementById('login-wrap').style.display = 'none';
-    document.getElementById('main').style.display = 'block';
-    document.getElementById('salon-badge').textContent = currentSalon.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    await loadClients();
-  }
-
-  // LOAD CLIENTS
-  async function loadClients() {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('clients-table').style.display = 'none';
-    document.getElementById('cards-list').style.display = 'none';
-    document.getElementById('empty-state').style.display = 'none';
-
-    try {
-      const filter = `FIND("${currentSalon}",LOWER({Prestataire}))`;
-      const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE}?filterByFormula=${encodeURIComponent(filter)}&sort[0][field]=Date%20premi%C3%A8re%20visite&sort[0][direction]=desc`;
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` } });
-      const data = await res.json();
-      allRecords = data.records || [];
-      renderClients(allRecords);
-      updateStats(allRecords);
-    } catch (e) {
-      document.getElementById('loading').innerHTML = 'Erreur de chargement.';
-    }
-  }
-
-  function renderClients(records) {
-    document.getElementById('loading').style.display = 'none';
-
-    if (records.length === 0) {
-      document.getElementById('empty-state').style.display = 'block';
-      return;
-    }
-
-    if (isMobile()) {
-      renderCards(records);
-    } else {
-      renderTable(records);
-    }
-  }
-
-  function renderTable(records) {
-    document.getElementById('clients-table').style.display = 'table';
-    const tbody = document.getElementById('clients-tbody');
-    tbody.innerHTML = '';
-
-    records.forEach(r => {
-      const f = r.fields;
-      const statut = f['Statut'] || 'Contacté';
-      const date = f['Date première visite'] ? new Date(f['Date première visite']).toLocaleDateString('fr-CH') : '—';
-      const isRecompense = statut === 'Récompensé';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><strong>${f['Prénom'] || '—'}</strong></td>
-        <td style="color:var(--gray)">${f['Téléphone'] || '—'}</td>
-        <td style="color:var(--gray)">${date}</td>
-        <td><span class="badge ${statut.toLowerCase()}">${statut}</span></td>
-        <td>${!isRecompense
-          ? `<button class="btn-validate" data-id="${r.id}" data-prenom="${(f['Prénom'] || '').replace(/"/g, '&quot;')}" data-telephone="${f['Téléphone'] || ''}">✓ Filleul venu</button>`
-          : `<span style="font-size:13px;color:var(--green)">✓ Récompensé</span>`
-        }</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    tbody.onclick = function(e) {
-      const btn = e.target.closest('.btn-validate');
-      if (btn) openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
-    };
-  }
-
-  function renderCards(records) {
-    const cardsList = document.getElementById('cards-list');
-    cardsList.style.display = 'block';
-    cardsList.innerHTML = '';
-
-    records.forEach(r => {
-      const f = r.fields;
-      const statut = f['Statut'] || 'Contacté';
-      const date = f['Date première visite'] ? new Date(f['Date première visite']).toLocaleDateString('fr-CH') : '—';
-      const isRecompense = statut === 'Récompensé';
-
-      const card = document.createElement('div');
-      card.className = 'client-card';
-      card.innerHTML = `
-        <div class="client-card-top">
-          <span class="client-card-name">${f['Prénom'] || '—'}</span>
-          <span class="badge ${statut.toLowerCase()}">${statut}</span>
-        </div>
-        <div class="client-card-meta">${f['Téléphone'] || '—'} · ${date}</div>
-        ${!isRecompense
-          ? `<button class="btn-validate" data-id="${r.id}" data-prenom="${(f['Prénom'] || '').replace(/"/g, '&quot;')}" data-telephone="${f['Téléphone'] || ''}" style="width:100%">✓ Filleul venu</button>`
-          : `<span style="font-size:13px;color:var(--green)">✓ Récompensé</span>`
-        }
-      `;
-      cardsList.appendChild(card);
-    });
-
-    cardsList.onclick = function(e) {
-      const btn = e.target.closest('.btn-validate');
-      if (btn) openModal(btn.dataset.id, btn.dataset.prenom, btn.dataset.telephone);
-    };
-  }
-
-  function updateStats(records) {
-    document.getElementById('stat-total').textContent = records.length;
-    document.getElementById('stat-actifs').textContent = records.filter(r => ['Contacté','Parrainé'].includes(r.fields['Statut'])).length;
-    document.getElementById('stat-recompenses').textContent = records.filter(r => r.fields['Statut'] === 'Récompensé').length;
-  }
-
-  // MODAL
-  function openModal(recordId, prenom, telephone) {
-    pendingRecordId = recordId;
-    pendingPrenom = prenom;
-    pendingTelephone = telephone;
-    document.getElementById('modal-text').textContent = `Confirmes-tu que le filleul de ${prenom} est venu ? Sa récompense sera déclenchée automatiquement.`;
-    document.getElementById('modal').classList.add('open');
-  }
-
-  function closeModal() {
-    document.getElementById('modal').classList.remove('open');
-    pendingRecordId = null;
-    pendingPrenom = null;
-    pendingTelephone = null;
-  }
-
-  async function confirmValidation() {
-    if (!pendingRecordId) return;
-    const recordId = pendingRecordId;
-    const prenom = pendingPrenom;
-    const telephone = pendingTelephone;
-    document.getElementById('modal').classList.remove('open');
-    pendingRecordId = null;
-    pendingPrenom = null;
-    pendingTelephone = null;
-
-    try {
-      await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE}/${recordId}`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fields: { Statut: 'Récompensé' } })
-      });
-
-      if (MAKE_WEBHOOK_RECOMPENSE !== 'WEBHOOK_RECOMPENSE_ICI') {
-        await fetch(MAKE_WEBHOOK_RECOMPENSE, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recordId, prenom, telephone, salon: currentSalon })
-        });
-      }
-
-      showToast(`✓ Récompense de ${prenom} déclenchée !`);
-      await loadClients();
-    } catch (e) {
-      showToast('Erreur lors de la validation.');
-    }
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
-
-  document.getElementById('login-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleLogin();
-  });
-
-  window.addEventListener('resize', () => {
-    if (allRecords.length > 0) renderClients(allRecords);
-  });
-
-  const saved = localStorage.getItem('parrainapp_salon');
-  if (saved) { currentSalon = saved; showDashboard(); }
-</script>
 </body>
 </html>

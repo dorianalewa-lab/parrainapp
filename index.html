@@ -8,7 +8,6 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
- 
   :root {
     --purple: #5B21B6;
     --purple-light: #EDE9FE;
@@ -324,6 +323,8 @@
       <label for="consent">J'accepte de recevoir un SMS de parrainage de <strong id="salon-consent">ce salon</strong> et comprends que mon numéro sera utilisé uniquement dans ce cadre.</label>
     </div>
 
+    <input type="text" name="website" id="hp-website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
+
     <button class="btn" id="submit-btn" onclick="handleSubmit()">Je participe →</button>
     <p class="error-msg" id="error-msg">Une erreur est survenue. Réessaie dans quelques secondes.</p>
   </div>
@@ -347,12 +348,11 @@
   document.getElementById('salon-name').textContent = salonDisplay;
   document.getElementById('salon-consent').textContent = salonDisplay;
 
-  const MAKE_WEBHOOK = 'https://hook.eu2.make.com/gwyvssick46mmth2p7me9pcjp4386c5c';
-
   async function handleSubmit() {
     const prenom = document.getElementById('prenom').value.trim();
     const telephone = document.getElementById('telephone').value.trim().replace(/\s/g, '');
     const consent = document.getElementById('consent').checked;
+    const honeypot = document.getElementById('hp-website').value;
     const btn = document.getElementById('submit-btn');
     const errorMsg = document.getElementById('error-msg');
 
@@ -368,17 +368,27 @@
     btn.textContent = 'Envoi en cours…';
 
     try {
-      await fetch(MAKE_WEBHOOK, {
+      const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prenom: prenom,
+          prenom,
           telephone: '+41' + telephone,
           salon: salonParam,
-          consentement: true,
-          source: 'qr_code'
+          consent: true,
+          website: honeypot,
         })
       });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        btn.disabled = false;
+        btn.textContent = 'Je participe →';
+        errorMsg.textContent = data.error || 'Une erreur est survenue. Réessaie dans quelques secondes.';
+        errorMsg.style.display = 'block';
+        return;
+      }
 
       document.getElementById('form-state').style.display = 'none';
       document.getElementById('success-state').style.display = 'block';
@@ -386,7 +396,7 @@
     } catch (err) {
       btn.disabled = false;
       btn.textContent = 'Je participe →';
-      errorMsg.textContent = 'Une erreur est survenue. Réessaie dans quelques secondes.';
+      errorMsg.textContent = 'Connexion impossible. Vérifie ton réseau et réessaie.';
       errorMsg.style.display = 'block';
     }
   }
