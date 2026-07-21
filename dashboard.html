@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp — Dashboard (bientôt disponible)</title>
+<title>ParrainApp — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,66 +15,461 @@
     --gray: #6B7280;
     --light: #F9F8FF;
     --white: #FFFFFF;
+    --green: #059669;
+    --green-light: #D1FAE5;
+    --red: #DC2626;
+    --red-light: #FEE2E2;
   }
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--light);
     min-height: 100vh;
+    color: var(--dark);
+  }
+
+  /* LOGIN */
+  .login-wrap {
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px 16px;
-    color: var(--dark);
+    padding: 24px;
   }
-  .card {
+  .login-card {
     background: var(--white);
     border-radius: 24px;
-    max-width: 420px;
+    padding: 48px 36px;
+    max-width: 380px;
     width: 100%;
-    padding: 48px 32px;
     box-shadow: 0 4px 40px rgba(91,33,182,0.08);
     text-align: center;
   }
-  .icon {
-    width: 72px;
-    height: 72px;
-    background: var(--purple-light);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 32px;
-  }
-  h1 {
+  .login-card .logo {
     font-family: 'Syne', sans-serif;
-    font-size: 24px;
-    margin-bottom: 12px;
-  }
-  h1 span { color: var(--purple); }
-  p {
-    font-size: 15px;
-    color: var(--gray);
-    line-height: 1.6;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--dark);
     margin-bottom: 8px;
   }
-  .powered {
-    margin-top: 32px;
-    font-size: 12px;
-    color: #C4B5FD;
+  .login-card .logo span { color: var(--purple); }
+  .login-card p { font-size: 14px; color: var(--gray); margin-bottom: 24px; }
+  .login-card input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--dark);
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
   }
-  .powered span { color: var(--purple); font-weight: 500; }
+  .login-card input:focus { border-color: var(--purple-mid); }
+  .login-error { font-size: 13px; color: var(--red); margin: 8px 0 12px; display: none; }
+
+  /* MAIN */
+  .main { display: none; }
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid #F3F4F6;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .topbar .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .topbar .logo span { color: var(--purple); }
+  .topbar .right { display: flex; align-items: center; gap: 12px; }
+  .topbar .salon-badge {
+    background: var(--purple-light);
+    color: var(--purple);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .topbar .logout {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: var(--gray);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+  .topbar .logout:hover { color: var(--red); background: var(--red-light); }
+
+  .content { padding: 32px; max-width: 1000px; margin: 0 auto; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(91,33,182,0.05);
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .stat-card .value {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  .stat-card .value.purple { color: var(--purple); }
+  .stat-card .value.green { color: var(--green); }
+  .stat-card .sub {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .qr-link {
+    font-size: 12px;
+    color: var(--purple);
+    text-decoration: none;
+    background: var(--purple-light);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .qr-link:hover { background: #DDD6FE; }
+
+  .table-wrap {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(91,33,182,0.05);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--dark); }
+  thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tbody tr { border-bottom: 1px solid #F3F4F6; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--light); }
+  tbody td { padding: 14px 16px; font-size: 14px; }
+
+  .code-badge {
+    display: inline-block;
+    background: var(--purple-light);
+    color: var(--purple);
+    font-family: monospace;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .btn {
+    padding: 14px 24px;
+    background: var(--purple);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: var(--purple-mid); }
+  .btn:disabled { background: #C4B5FD; cursor: not-allowed; }
+
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--gray);
+    font-size: 14px;
+  }
+  .empty .icon { font-size: 36px; margin-bottom: 12px; }
+
+  .loading { text-align: center; padding: 48px; color: var(--gray); font-size: 14px; }
+
+  .cards-mobile { display: none; }
+  .parrain-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(91,33,182,0.04);
+  }
+  .parrain-card .name {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .parrain-card .meta {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  @media (max-width: 700px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .content { padding: 16px; }
+    .topbar { padding: 16px; }
+    .table-wrap { display: none; }
+    .cards-mobile { display: block; }
+  }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="icon">🛠️</div>
-  <h1>Dashboard <span>en cours de reconstruction</span></h1>
-  <p>Nous mettons en place une authentification sécurisée et un vrai isolement multi-salons.</p>
-  <p>Reviens très bientôt.</p>
-  <p class="powered">Propulsé par <span>ParrainApp</span></p>
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div class="logo">Parrain<span>App</span></div>
+    <p>Connecte-toi avec les identifiants de ton salon</p>
+    <input type="text" id="login-slug" placeholder="Slug du salon (ex: coiffeur-jean)" autocomplete="username" autocapitalize="off">
+    <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
+    <p class="login-error" id="login-error"></p>
+    <button class="btn" onclick="handleLogin()" id="login-btn">Accéder au dashboard →</button>
+  </div>
 </div>
 
+<!-- MAIN -->
+<div class="main" id="main">
+  <div class="topbar">
+    <div class="logo">Parrain<span>App</span></div>
+    <div class="right">
+      <span class="salon-badge" id="salon-badge"></span>
+      <button class="logout" onclick="handleLogout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Parrains inscrits</div>
+        <div class="value purple" id="stat-total">—</div>
+        <div class="sub">tous parrainages confondus</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Cette semaine</div>
+        <div class="value" id="stat-week">—</div>
+        <div class="sub">7 derniers jours</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ce mois</div>
+        <div class="value green" id="stat-month">—</div>
+        <div class="sub">30 derniers jours</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <span>Parrains inscrits</span>
+      <a class="qr-link" id="qr-link" href="#" target="_blank">Lien d'inscription (QR)</a>
+    </div>
+
+    <div class="table-wrap">
+      <div class="loading" id="loading">Chargement…</div>
+      <table id="clients-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Prénom</th>
+            <th>Téléphone</th>
+            <th>Code</th>
+            <th>Inscrit le</th>
+          </tr>
+        </thead>
+        <tbody id="clients-tbody"></tbody>
+      </table>
+      <div class="empty" id="empty-state" style="display:none">
+        <div class="icon">👥</div>
+        Aucun parrain inscrit pour l'instant.<br>Partage ton lien / QR code en caisse.
+      </div>
+    </div>
+
+    <div class="cards-mobile" id="cards-mobile"></div>
+  </div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  async function handleLogin() {
+    const slug = $('login-slug').value.trim().toLowerCase();
+    const password = $('login-password').value;
+    const err = $('login-error');
+    const btn = $('login-btn');
+
+    err.style.display = 'none';
+    if (!slug || !password) {
+      err.textContent = 'Renseigne le slug et le mot de passe.';
+      err.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Connexion…';
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ slug, password })
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        err.textContent = data.error || 'Erreur de connexion.';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Accéder au dashboard →';
+        return;
+      }
+
+      await showDashboard();
+    } catch (e) {
+      err.textContent = 'Impossible de contacter le serveur.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Accéder au dashboard →';
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {}
+    $('main').style.display = 'none';
+    $('login-wrap').style.display = 'flex';
+    $('login-slug').value = '';
+    $('login-password').value = '';
+  }
+
+  async function showDashboard() {
+    $('login-wrap').style.display = 'none';
+    $('main').style.display = 'block';
+    await loadClients();
+  }
+
+  async function loadClients() {
+    $('loading').style.display = 'block';
+    $('clients-table').style.display = 'none';
+    $('empty-state').style.display = 'none';
+    $('cards-mobile').innerHTML = '';
+
+    try {
+      const res = await fetch('/api/dashboard/clients', { credentials: 'include' });
+      if (res.status === 401) {
+        handleLogout();
+        return;
+      }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'error');
+
+      $('salon-badge').textContent = data.salon.nom;
+      $('qr-link').href = `/?salon=${encodeURIComponent(data.salon.slug)}`;
+
+      $('stat-total').textContent = data.stats.total_parrains;
+      $('stat-week').textContent = data.stats.parrains_semaine;
+      $('stat-month').textContent = data.stats.parrains_mois;
+
+      renderParrains(data.parrains);
+    } catch (e) {
+      $('loading').textContent = 'Erreur de chargement.';
+    }
+  }
+
+  function renderParrains(list) {
+    $('loading').style.display = 'none';
+
+    if (list.length === 0) {
+      $('empty-state').style.display = 'block';
+      return;
+    }
+
+    $('clients-table').style.display = 'table';
+    const tbody = $('clients-tbody');
+    tbody.innerHTML = '';
+    const cardsWrap = $('cards-mobile');
+    cardsWrap.innerHTML = '';
+
+    list.forEach(p => {
+      const date = p.created_at ? new Date(p.created_at).toLocaleDateString('fr-CH') : '—';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${escapeHtml(p.prenom)}</strong></td>
+        <td style="color:var(--gray)">${escapeHtml(p.telephone)}</td>
+        <td><span class="code-badge">${escapeHtml(p.code_court)}</span></td>
+        <td style="color:var(--gray)">${date}</td>
+      `;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div');
+      card.className = 'parrain-card';
+      card.innerHTML = `
+        <div class="name">${escapeHtml(p.prenom)}</div>
+        <div class="meta">${escapeHtml(p.telephone)} · <span class="code-badge">${escapeHtml(p.code_court)}</span></div>
+        <div class="meta">Inscrit le ${date}</div>
+      `;
+      cardsWrap.appendChild(card);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    })[c]);
+  }
+
+  ['login-slug','login-password'].forEach(id => {
+    $(id).addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+  });
+
+  (async () => {
+    try {
+      const res = await fetch('/api/dashboard/clients', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.ok) {
+          $('login-wrap').style.display = 'none';
+          $('main').style.display = 'block';
+          $('salon-badge').textContent = data.salon.nom;
+          $('qr-link').href = `/?salon=${encodeURIComponent(data.salon.slug)}`;
+          $('stat-total').textContent = data.stats.total_parrains;
+          $('stat-week').textContent = data.stats.parrains_semaine;
+          $('stat-month').textContent = data.stats.parrains_mois;
+          renderParrains(data.parrains);
+        }
+      }
+    } catch {}
+  })();
+</script>
 </body>
 </html>

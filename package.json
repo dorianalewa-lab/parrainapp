@@ -1,6 +1,6 @@
 {
   "name": "parrainapp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "SaaS de parrainage pour salons de coiffure et institutions",
   "engines": {
@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "airtable": "^0.12.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
     "libphonenumber-js": "^1.11.11"
   }
 }

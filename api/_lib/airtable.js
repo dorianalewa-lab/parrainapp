@@ -11,10 +11,20 @@ function escapeFormulaValue(str) {
   return String(str).replace(/'/g, "\\'");
 }
 
+async function findSalonBySlug(slug) {
+  if (!slug) return null;
+  const rows = await base('Salons').select({
+    filterByFormula: `LOWER({slug})='${escapeFormulaValue(slug.toLowerCase())}'`,
+    maxRecords: 1,
+  }).firstPage();
+  return rows.length > 0 ? rows[0] : null;
+}
+
 module.exports = {
   base,
   parrains: base('Parrains'),
   salons: base('Salons'),
   filleuls: base('Filleuls'),
   escapeFormulaValue,
+  findSalonBySlug,
 };
