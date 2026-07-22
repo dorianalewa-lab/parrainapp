@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
     }]);
 
     const baseUrl = process.env.PUBLIC_BASE_URL || `https://${req.headers.host}`;
-    const lien = `${baseUrl}/parrainage?ref=${encodeURIComponent(prenom)}&salon=${encodeURIComponent(slug)}`;
+    const lien = `${baseUrl}/r/${code_court}`;
 
     const smsText = smsTemplate
       ? renderSmsTemplate(smsTemplate, { prenom, salon: salonNom, lien })

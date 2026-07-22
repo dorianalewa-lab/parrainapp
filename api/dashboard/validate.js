@@ -1,0 +1,80 @@
+const { parrains, salons, filleuls, findSalonBySlug } = require('../_lib/airtable');
+const { sendSms } = require('../_lib/brevo');
+const { requireSalon } = require('../_lib/auth');
+const { validatePrenom } = require('../_lib/validation');
+
+function renderTemplate(template, vars) {
+  return template
+    .replace(/\{prenom\}/g, vars.prenom)
+    .replace(/\{prenom_filleul\}/g, vars.prenom_filleul)
+    .replace(/\{recompense\}/g, vars.recompense)
+    .replace(/\{salon\}/g, vars.salon);
+}
+
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, error: 'Méthode non autorisée' });
+  }
+
+  const session = requireSalon(req, res);
+  if (!session) return;
+
+  const body = req.body || {};
+  const parrainId = typeof body.parrain_id === 'string' ? body.parrain_id.trim() : '';
+  const prenomFilleul = validatePrenom(body.prenom_filleul);
+  const panierRaw = Number(body.panier_chf);
+  const panier = Number.isFinite(panierRaw) && panierRaw > 0 ? Math.round(panierRaw) : null;
+
+  if (!parrainId) return res.status(400).json({ ok: false, error: 'parrain_id manquant.' });
+  if (!prenomFilleul) return res.status(400).json({ ok: false, error: 'Prénom du filleul invalide.' });
+  if (!panier || panier > 10000) return res.status(400).json({ ok: false, error: 'Panier invalide (1 à 10000 CHF).' });
+
+  try {
+    const parrainRecord = await parrains.find(parrainId);
+    if (!parrainRecord) return res.status(404).json({ ok: false, error: 'Parrain introuvable.' });
+
+    if ((parrainRecord.get('salon_slug') || '').toLowerCase() !== session.slug.toLowerCase()) {
+      return res.status(403).json({ ok: false, error: 'Ce parrain n\'appartient pas à ton salon.' });
+    }
+
+    const salonRecord = await findSalonBySlug(session.slug);
+    if (!salonRecord) return res.status(404).json({ ok: false, error: 'Salon introuvable.' });
+
+    const parrainPrenom = parrainRecord.get('prenom') || '';
+    const parrainCode = parrainRecord.get('code_court') || '';
+    const parrainTel = parrainRecord.get('telephone') || '';
+    const salonNom = salonRecord.get('nom') || session.slug;
+    const recompenseTexte = salonRecord.get('recompense_parrain_texte') || 'une récompense';
+    const smsTemplate = salonRecord.get('sms_template_recompense') || null;
+
+    await filleuls.create([{
+      fields: {
+        parrain_code: parrainCode,
+        salon_slug: session.slug,
+        prenom: prenomFilleul,
+        panier_chf: panier,
+        visited_at: new Date().toISOString(),
+      }
+    }]);
+
+    let smsSent = false;
+    let smsError = null;
+    if (parrainTel) {
+      const smsText = smsTemplate
+        ? renderTemplate(smsTemplate, { prenom: parrainPrenom, prenom_filleul: prenomFilleul, recompense: recompenseTexte, salon: salonNom })
+        : `Bonne nouvelle ${parrainPrenom} ! ${prenomFilleul} vient de nous rendre visite chez ${salonNom}. Tu gagnes ${recompenseTexte}. Merci !`;
+      try {
+        await sendSms({ to: parrainTel, text: smsText });
+        smsSent = true;
+      } catch (err) {
+        console.error('[validate] SMS récompense failed:', err);
+        smsError = 'Filleul enregistré mais SMS de récompense non envoyé.';
+      }
+    }
+
+    return res.status(200).json({ ok: true, sms_sent: smsSent, warning: smsError });
+  } catch (err) {
+    console.error('[dashboard/validate] error:', err);
+    return res.status(500).json({ ok: false, error: 'Erreur serveur.' });
+  }
+};
