@@ -48,13 +48,16 @@ module.exports = async (req, res) => {
     const salonNom = salonRecord.get('nom') || slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const smsTemplate = salonRecord.get('sms_template_parrain') || null;
 
-    const filter = `AND({telephone}='${escapeFormulaValue(telephone)}', LOWER({salon_slug})='${escapeFormulaValue(slug)}')`;
-    const existing = await parrains.select({
-      filterByFormula: filter,
-      maxRecords: 1,
-    }).firstPage();
+    const rowsForSalon = await parrains.select({
+      filterByFormula: `LOWER({salon_slug})='${escapeFormulaValue(slug)}'`,
+      pageSize: 100,
+    }).all();
 
-    if (existing.length > 0) {
+    const normalizePhone = p => (p || '').toString().replace(/[^+\d]/g, '');
+    const targetPhone = normalizePhone(telephone);
+    const duplicate = rowsForSalon.find(r => normalizePhone(r.get('telephone')) === targetPhone);
+
+    if (duplicate) {
       return res.status(409).json({ ok: false, error: 'Tu es déjà inscrit pour ce salon.' });
     }
 
