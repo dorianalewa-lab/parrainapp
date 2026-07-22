@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParrainApp — Filleuls</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+
+<div class="app" id="app">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">Parrain<span>App</span></div>
+    <nav class="nav">
+      <a href="/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/parrains"><span class="icon">👥</span> Parrains</a>
+      <a href="/filleuls" class="active"><span class="icon">👋</span> Filleuls</a>
+      <a href="/offres"><span class="icon">✂️</span> Offres</a>
+      <a href="/templates"><span class="icon">💬</span> Templates SMS</a>
+      <a href="/settings"><span class="icon">⚙️</span> Paramètres</a>
+    </nav>
+    <div class="foot">
+      <span class="salon-badge" id="salon-badge">…</span>
+      <button class="logout" onclick="handleLogout()">Déconnexion</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h1>Filleuls</h1>
+      <p>Historique des visites validées grâce au parrainage.</p>
+    </div>
+
+    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="stat">
+        <div class="label">Total visites</div>
+        <div class="value purple" id="stat-total">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">CA cumulé</div>
+        <div class="value green" id="stat-ca">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">Panier moyen réel</div>
+        <div class="value" id="stat-avg">—</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="loading" id="loading">Chargement…</div>
+      <table id="filleuls-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Filleul</th>
+            <th>Via parrain</th>
+            <th>Prestation</th>
+            <th class="right">Panier</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="filleuls-tbody"></tbody>
+      </table>
+      <div class="empty" id="empty-state" style="display:none">
+        <div class="icon">👋</div>
+        Aucune visite validée pour le moment.<br>Va sur <a href="/parrains" style="color:var(--purple)">Parrains</a> et clique "+ Visite" pour en enregistrer une.
+      </div>
+    </div>
+
+    <div class="cards-mobile" id="cards-mobile"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function toggleSidebar() {
+    $('sidebar').classList.toggle('open');
+    $('sidebar-overlay').classList.toggle('open');
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    })[c]);
+  }
+
+  function showToast(msg, isErr) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  async function handleLogout() {
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+    window.location.href = '/dashboard';
+  }
+
+  async function loadPage() {
+    try {
+      const [filleulsRes, clientsRes] = await Promise.all([
+        fetch('/api/dashboard/filleuls', { credentials: 'include' }),
+        fetch('/api/dashboard/clients', { credentials: 'include' }),
+      ]);
+
+      if (filleulsRes.status === 401) { window.location.href = '/dashboard'; return; }
+
+      const data = await filleulsRes.json();
+      if (!data.ok) throw new Error(data.error);
+
+      const clientsData = await clientsRes.json().catch(() => ({ salon: { nom: '' } }));
+      $('salon-badge').textContent = clientsData?.salon?.nom || '';
+
+      const total = data.filleuls.length;
+      const ca = data.filleuls.reduce((s, f) => s + f.panier_chf, 0);
+      const avg = total > 0 ? Math.round(ca / total) : 0;
+
+      $('stat-total').textContent = total;
+      $('stat-ca').textContent = ca + ' CHF';
+      $('stat-avg').textContent = avg + ' CHF';
+
+      renderFilleuls(data.filleuls);
+    } catch (e) {
+      $('loading').textContent = 'Erreur de chargement.';
+    }
+  }
+
+  function renderFilleuls(list) {
+    $('loading').style.display = 'none';
+
+    if (list.length === 0) {
+      $('empty-state').style.display = 'block';
+      return;
+    }
+
+    $('filleuls-table').style.display = 'table';
+    const tbody = $('filleuls-tbody');
+    tbody.innerHTML = '';
+    const cardsWrap = $('cards-mobile');
+    cardsWrap.innerHTML = '';
+
+    list.forEach(f => {
+      const date = f.visited_at ? new Date(f.visited_at).toLocaleDateString('fr-CH') : '—';
+      const parrainName = f.parrain?.prenom || '—';
+      const prestation = f.prestation_nom || '<span style="color:var(--gray)">saisie libre</span>';
+      const notes = f.notes ? escapeHtml(f.notes) : '<span style="color:var(--gray)">—</span>';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:var(--gray)">${date}</td>
+        <td><strong>${escapeHtml(f.prenom)}</strong></td>
+        <td>${escapeHtml(parrainName)}${f.parrain_code ? ` <span class="code-badge">${escapeHtml(f.parrain_code)}</span>` : ''}</td>
+        <td>${prestation}</td>
+        <td class="ca">${f.panier_chf} CHF</td>
+        <td style="font-size:12px;color:var(--gray)">${notes}</td>
+      `;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.innerHTML = `
+        <div class="head">
+          <div class="name">${escapeHtml(f.prenom)}</div>
+          <div class="price">${f.panier_chf} CHF</div>
+        </div>
+        <div class="meta">Via <strong>${escapeHtml(parrainName)}</strong> · ${date}</div>
+        ${f.prestation_nom ? `<div class="meta">Prestation : ${escapeHtml(f.prestation_nom)}</div>` : ''}
+        ${f.notes ? `<div class="meta" style="margin-top:8px;font-style:italic">"${escapeHtml(f.notes)}"</div>` : ''}
+      `;
+      cardsWrap.appendChild(card);
+    });
+  }
+
+  loadPage();
+</script>
+</body>
+</html>

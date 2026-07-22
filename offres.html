@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParrainApp — Offres</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .add-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+  @media (max-width: 600px) {
+    .add-form { grid-template-columns: 1fr; }
+  }
+  .add-form input { margin: 0; }
+  .add-form label { margin-top: 0; }
+  .add-form .btn { padding: 12px 20px; height: 44px; }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">Parrain<span>App</span></div>
+    <nav class="nav">
+      <a href="/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/parrains"><span class="icon">👥</span> Parrains</a>
+      <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
+      <a href="/offres" class="active"><span class="icon">✂️</span> Offres</a>
+      <a href="/templates"><span class="icon">💬</span> Templates SMS</a>
+      <a href="/settings"><span class="icon">⚙️</span> Paramètres</a>
+    </nav>
+    <div class="foot">
+      <span class="salon-badge" id="salon-badge">…</span>
+      <button class="logout" onclick="handleLogout()">Déconnexion</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h1>Offres</h1>
+      <p>Le catalogue des prestations proposées. Utilisé lors de la validation d'une visite.</p>
+    </div>
+
+    <div class="card">
+      <h2>Ajouter une offre</h2>
+      <p class="desc">Nom + prix. Simple. Éditables ensuite.</p>
+      <div class="add-form">
+        <div>
+          <label for="new-nom">Nom</label>
+          <input type="text" id="new-nom" placeholder="ex: Coupe couleur">
+        </div>
+        <div>
+          <label for="new-prix">Prix (CHF)</label>
+          <input type="number" id="new-prix" min="0" step="1" placeholder="65">
+        </div>
+        <button class="btn" onclick="addPrestation()" id="btn-add">Ajouter</button>
+      </div>
+      <div class="msg" id="msg-add"></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="loading" id="loading">Chargement…</div>
+      <table id="prestations-table" style="display:none">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th class="right">Prix (CHF)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="prestations-tbody"></tbody>
+      </table>
+      <div class="empty" id="empty-state" style="display:none">
+        <div class="icon">✂️</div>
+        Aucune offre configurée.<br>Ajoute tes prestations principales pour accélérer les validations de visites.
+      </div>
+    </div>
+
+    <div class="cards-mobile" id="cards-mobile"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function toggleSidebar() {
+    $('sidebar').classList.toggle('open');
+    $('sidebar-overlay').classList.toggle('open');
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    })[c]);
+  }
+
+  function showToast(msg, isErr) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  function showMsg(id, text, type = 'ok') {
+    const el = $(id);
+    el.className = 'msg ' + type;
+    el.textContent = text;
+    setTimeout(() => el.className = 'msg', 4000);
+  }
+
+  async function handleLogout() {
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+    window.location.href = '/dashboard';
+  }
+
+  async function loadPage() {
+    try {
+      const [prestationsRes, clientsRes] = await Promise.all([
+        fetch('/api/dashboard/prestations', { credentials: 'include' }),
+        fetch('/api/dashboard/clients', { credentials: 'include' }),
+      ]);
+
+      if (prestationsRes.status === 401) { window.location.href = '/dashboard'; return; }
+
+      const data = await prestationsRes.json();
+      if (!data.ok) throw new Error(data.error);
+
+      const clientsData = await clientsRes.json().catch(() => ({ salon: { nom: '' } }));
+      $('salon-badge').textContent = clientsData?.salon?.nom || '';
+
+      renderPrestations(data.prestations);
+    } catch (e) {
+      $('loading').textContent = 'Erreur de chargement.';
+    }
+  }
+
+  function renderPrestations(list) {
+    $('loading').style.display = 'none';
+
+    if (list.length === 0) {
+      $('empty-state').style.display = 'block';
+      $('prestations-table').style.display = 'none';
+      $('cards-mobile').innerHTML = '';
+      return;
+    }
+
+    $('empty-state').style.display = 'none';
+    $('prestations-table').style.display = 'table';
+    const tbody = $('prestations-tbody');
+    tbody.innerHTML = '';
+    const cardsWrap = $('cards-mobile');
+    cardsWrap.innerHTML = '';
+
+    list.forEach(p => {
+      const nom = escapeHtml(p.nom);
+      const nomEsc = nom.replace(/'/g, "\\'");
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <input type="text" value="${nom}" data-id="${p.id}" data-field="nom" style="padding:8px 10px" onblur="onFieldEdit(this)">
+        </td>
+        <td class="right">
+          <input type="number" value="${p.prix_chf}" data-id="${p.id}" data-field="prix_chf" style="padding:8px 10px;max-width:120px;text-align:right" onblur="onFieldEdit(this)">
+        </td>
+        <td>
+          <button class="btn-icon" onclick="deletePrestation('${p.id}', '${nomEsc}')" title="Supprimer">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.innerHTML = `
+        <div class="head">
+          <div class="name">${nom}</div>
+          <div class="price">${p.prix_chf} CHF</div>
+        </div>
+        <div class="actions" style="margin-top:8px">
+          <button class="btn-outline btn-sm" onclick="editPrestation('${p.id}', '${nomEsc}', ${p.prix_chf})" style="flex:1;padding:8px">Modifier</button>
+          <button class="btn-icon" onclick="deletePrestation('${p.id}', '${nomEsc}')" title="Supprimer">🗑️</button>
+        </div>
+      `;
+      cardsWrap.appendChild(card);
+    });
+  }
+
+  async function onFieldEdit(input) {
+    const id = input.dataset.id;
+    const field = input.dataset.field;
+    const value = field === 'prix_chf' ? Number(input.value) : input.value.trim();
+
+    try {
+      const res = await fetch(`/api/dashboard/prestations?id=${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ [field]: value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        showToast(data.error || 'Erreur update', true);
+      } else {
+        showToast('✓ Mis à jour');
+      }
+    } catch (e) {
+      showToast('Impossible de contacter le serveur', true);
+    }
+  }
+
+  async function addPrestation() {
+    const nom = $('new-nom').value.trim();
+    const prix = Number($('new-prix').value);
+    const btn = $('btn-add');
+
+    if (!nom || !Number.isFinite(prix) || prix < 0) {
+      showMsg('msg-add', 'Renseigne un nom et un prix.', 'err');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Ajout…';
+
+    try {
+      const res = await fetch('/api/dashboard/prestations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ nom, prix_chf: prix }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        showMsg('msg-add', data.error || 'Erreur.', 'err');
+        btn.disabled = false;
+        btn.textContent = 'Ajouter';
+        return;
+      }
+
+      $('new-nom').value = '';
+      $('new-prix').value = '';
+      btn.disabled = false;
+      btn.textContent = 'Ajouter';
+      showToast('✓ Offre ajoutée');
+      await loadPage();
+    } catch (e) {
+      showMsg('msg-add', 'Impossible de contacter le serveur.', 'err');
+      btn.disabled = false;
+      btn.textContent = 'Ajouter';
+    }
+  }
+
+  function editPrestation(id, currentNom, currentPrix) {
+    const nom = prompt('Nom de l\'offre :', currentNom);
+    if (nom === null) return;
+    const prix = prompt('Prix en CHF :', currentPrix);
+    if (prix === null) return;
+    fetch(`/api/dashboard/prestations?id=${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ nom: nom.trim(), prix_chf: Number(prix) }),
+    }).then(r => r.json()).then(d => {
+      if (d.ok) { showToast('✓ Mis à jour'); loadPage(); }
+      else showToast(d.error || 'Erreur', true);
+    }).catch(() => showToast('Erreur serveur', true));
+  }
+
+  async function deletePrestation(id, nom) {
+    if (!confirm(`Supprimer l'offre "${nom}" ?\n\nLes visites déjà validées avec cette offre gardent leur historique.`)) return;
+
+    try {
+      const res = await fetch(`/api/dashboard/prestations?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        showToast(data.error || 'Erreur', true);
+      } else {
+        showToast('✓ Supprimé');
+        await loadPage();
+      }
+    } catch (e) {
+      showToast('Impossible de contacter le serveur', true);
+    }
+  }
+
+  ['new-nom','new-prix'].forEach(id => {
+    $(id).addEventListener('keydown', e => { if (e.key === 'Enter') addPrestation(); });
+  });
+
+  loadPage();
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParrainApp — Templates SMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .default-preview {
+    background: var(--light);
+    border-left: 3px solid var(--purple);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--dark);
+    margin-top: 8px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">Parrain<span>App</span></div>
+    <nav class="nav">
+      <a href="/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/parrains"><span class="icon">👥</span> Parrains</a>
+      <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
+      <a href="/offres"><span class="icon">✂️</span> Offres</a>
+      <a href="/templates" class="active"><span class="icon">💬</span> Templates SMS</a>
+      <a href="/settings"><span class="icon">⚙️</span> Paramètres</a>
+    </nav>
+    <div class="foot">
+      <span class="salon-badge" id="salon-badge">…</span>
+      <button class="logout" onclick="handleLogout()">Déconnexion</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h1>Templates SMS</h1>
+      <p>Personnalise les messages envoyés à tes parrains. Laisse vide pour utiliser les templates par défaut.</p>
+    </div>
+
+    <div class="loading" id="loading">Chargement…</div>
+
+    <div id="main-content" style="display:none">
+
+      <div class="card">
+        <h2>SMS d'inscription parrain</h2>
+        <p class="desc">Envoyé au parrain juste après son inscription, avec son lien à partager.</p>
+
+        <label for="sms_template_parrain">Ton template</label>
+        <textarea id="sms_template_parrain" placeholder="Laisse vide pour utiliser le template par défaut ci-dessous"></textarea>
+        <p class="hint">
+          Variables disponibles : <code>{prenom}</code> <code>{salon}</code> <code>{lien}</code>.<br>
+          <strong>La variable <code>{lien}</code> est obligatoire</strong> si tu personnalises — c'est ce que le parrain partage.
+        </p>
+
+        <label style="margin-top:16px">Template par défaut si tu laisses vide</label>
+        <div class="default-preview" id="default-parrain">
+          Salut {prenom} ! Voici ton lien de parrainage {salon} : {lien} Partage-le pour gagner ta recompense.
+        </div>
+
+        <div class="actions">
+          <button class="btn" onclick="saveParrain()" id="save-parrain">Enregistrer</button>
+        </div>
+        <div class="msg" id="msg-parrain"></div>
+      </div>
+
+      <div class="card">
+        <h2>SMS de récompense parrain</h2>
+        <p class="desc">Envoyé au parrain quand tu valides la visite d'un de ses filleuls.</p>
+
+        <label for="sms_template_recompense">Ton template</label>
+        <textarea id="sms_template_recompense" placeholder="Laisse vide pour utiliser le template par défaut ci-dessous"></textarea>
+        <p class="hint">
+          Variables : <code>{prenom}</code> <code>{prenom_filleul}</code> <code>{recompense}</code> <code>{salon}</code>.
+        </p>
+
+        <label style="margin-top:16px">Template par défaut si tu laisses vide</label>
+        <div class="default-preview" id="default-recompense">
+          Bonne nouvelle {prenom} ! {prenom_filleul} vient de nous rendre visite chez {salon}. Tu gagnes {recompense}. Merci !
+        </div>
+
+        <div class="actions">
+          <button class="btn" onclick="saveRecompense()" id="save-recompense">Enregistrer</button>
+        </div>
+        <div class="msg" id="msg-recompense"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:15px">💡 Conseils</h2>
+        <ul style="font-size:13px;color:var(--gray);line-height:1.7;padding-left:20px">
+          <li>Reste sous <strong>160 caractères</strong> quand possible — au-delà, l'opérateur peut découper en plusieurs SMS et te facturer plusieurs unités.</li>
+          <li>Évite les emojis compliqués et les caractères spéciaux (æ, œ, ¥) — ils cassent l'encodage GSM et divisent la limite par 2.</li>
+          <li>Un ton amical marche mieux qu'un ton formel — on est en SMS, pas en courrier.</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function toggleSidebar() {
+    $('sidebar').classList.toggle('open');
+    $('sidebar-overlay').classList.toggle('open');
+  }
+
+  function showToast(msg, isErr) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  function showMsg(id, text, type = 'ok') {
+    const el = $(id);
+    el.className = 'msg ' + type;
+    el.textContent = text;
+    setTimeout(() => el.className = 'msg', 5000);
+  }
+
+  async function handleLogout() {
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+    window.location.href = '/dashboard';
+  }
+
+  async function loadPage() {
+    try {
+      const res = await fetch('/api/dashboard/settings', { credentials: 'include' });
+      if (res.status === 401) { window.location.href = '/dashboard'; return; }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      $('salon-badge').textContent = data.salon.nom || '';
+      $('sms_template_parrain').value = data.salon.sms_template_parrain || '';
+      $('sms_template_recompense').value = data.salon.sms_template_recompense || '';
+
+      $('loading').style.display = 'none';
+      $('main-content').style.display = 'block';
+    } catch (e) {
+      $('loading').textContent = 'Erreur de chargement. Reconnecte-toi.';
+    }
+  }
+
+  async function patchTemplate(field, value, msgId, btnId) {
+    const btn = $(btnId);
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Enregistrement…';
+    try {
+      const res = await fetch('/api/dashboard/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ [field]: value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        showMsg(msgId, data.error || 'Erreur.', 'err');
+      } else {
+        showMsg(msgId, '✓ Template enregistré. Prochain SMS envoyé utilisera ta version.', 'ok');
+      }
+    } catch (e) {
+      showMsg(msgId, 'Impossible de contacter le serveur.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  }
+
+  function saveParrain() {
+    patchTemplate('sms_template_parrain', $('sms_template_parrain').value, 'msg-parrain', 'save-parrain');
+  }
+
+  function saveRecompense() {
+    patchTemplate('sms_template_recompense', $('sms_template_recompense').value, 'msg-recompense', 'save-recompense');
+  }
+
+  loadPage();
+</script>
+</body>
+</html>

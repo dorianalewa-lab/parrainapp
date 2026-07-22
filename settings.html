@@ -3,125 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp — Réglages du salon</title>
+<title>ParrainApp — Paramètres</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --purple: #5B21B6;
-    --purple-light: #EDE9FE;
-    --purple-mid: #7C3AED;
-    --dark: #1E1B4B;
-    --gray: #6B7280;
-    --light: #F9F8FF;
-    --white: #FFFFFF;
-    --green: #059669;
-    --green-light: #D1FAE5;
-    --red: #DC2626;
-    --red-light: #FEE2E2;
-  }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--light);
-    min-height: 100vh;
-    color: var(--dark);
-  }
-
-  .topbar {
-    background: var(--white);
-    border-bottom: 1px solid #F3F4F6;
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .topbar .logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; }
-  .topbar .logo span { color: var(--purple); }
-  .topbar a.back {
-    font-size: 13px; color: var(--gray); text-decoration: none;
-    padding: 6px 12px; border-radius: 8px;
-  }
-  .topbar a.back:hover { color: var(--purple); background: var(--purple-light); }
-  .topbar .salon-badge {
-    background: var(--purple-light); color: var(--purple);
-    padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 500;
-  }
-
-  .content { padding: 32px; max-width: 780px; margin: 0 auto; }
-
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    margin-bottom: 8px;
-  }
-  .subtitle { color: var(--gray); font-size: 15px; margin-bottom: 32px; }
-
-  .section {
-    background: var(--white);
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 24px;
-    box-shadow: 0 2px 12px rgba(91,33,182,0.05);
-  }
-  .section h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    margin-bottom: 6px;
-  }
-  .section .desc { color: var(--gray); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
-
-  label {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-    margin: 14px 0 6px;
-  }
-  input, textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid #E5E7EB;
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--dark);
-    outline: none;
-    background: var(--white);
-    transition: border-color 0.2s;
-  }
-  input:focus, textarea:focus { border-color: var(--purple-mid); }
-  textarea { resize: vertical; min-height: 90px; font-family: monospace; font-size: 13px; }
-  .hint { font-size: 12px; color: var(--gray); margin-top: 4px; line-height: 1.5; }
-  .hint code {
-    background: var(--purple-light); color: var(--purple);
-    padding: 2px 6px; border-radius: 4px; font-size: 11px;
-  }
-  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
-
-  .btn {
-    padding: 12px 22px;
-    background: var(--purple); color: var(--white);
-    border: none; border-radius: 10px;
-    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn:hover { background: var(--purple-mid); }
-  .btn:disabled { background: #C4B5FD; cursor: not-allowed; }
-
-  .btn-outline {
-    background: var(--white); color: var(--purple);
-    border: 1.5px solid var(--purple);
-    padding: 10px 20px;
-  }
-  .btn-outline:hover { background: var(--purple-light); }
-
-  .actions {
-    display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
-  }
-
   .qr-preview {
     background: var(--light);
     border-radius: 12px;
@@ -130,7 +15,7 @@
     margin-bottom: 20px;
   }
   .qr-preview img {
-    max-width: 240px;
+    max-width: 220px;
     width: 100%;
     height: auto;
     background: var(--white);
@@ -148,20 +33,6 @@
   .qr-actions {
     display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;
   }
-
-  .msg {
-    display: none;
-    padding: 12px;
-    border-radius: 10px;
-    font-size: 13px;
-    margin-top: 16px;
-    line-height: 1.5;
-  }
-  .msg.ok { display: block; background: var(--green-light); color: var(--green); }
-  .msg.err { display: block; background: var(--red-light); color: var(--red); }
-
-  .loading { text-align: center; padding: 48px; color: var(--gray); }
-
   .danger-zone {
     border: 1.5px dashed #FCA5A5;
     background: #FEF2F2;
@@ -171,115 +42,117 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo">Parrain<span>App</span></div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <span class="salon-badge" id="salon-badge"></span>
-    <a class="back" href="/dashboard">← Retour au dashboard</a>
-  </div>
+<div class="app" id="app">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">Parrain<span>App</span></div>
+    <nav class="nav">
+      <a href="/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/parrains"><span class="icon">👥</span> Parrains</a>
+      <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
+      <a href="/offres"><span class="icon">✂️</span> Offres</a>
+      <a href="/templates"><span class="icon">💬</span> Templates SMS</a>
+      <a href="/settings" class="active"><span class="icon">⚙️</span> Paramètres</a>
+    </nav>
+    <div class="foot">
+      <span class="salon-badge" id="salon-badge">…</span>
+      <button class="logout" onclick="handleLogout()">Déconnexion</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h1>Paramètres</h1>
+      <p>Configure ton programme de parrainage.</p>
+    </div>
+
+    <div class="loading" id="loading">Chargement…</div>
+
+    <div id="main-content" style="display:none">
+
+      <div class="card">
+        <h2>QR code d'inscription</h2>
+        <p class="desc">Imprime ce QR code et pose-le en caisse. Quand un client le scanne, il arrive sur ta page d'inscription parrain.</p>
+
+        <div class="qr-preview">
+          <img id="qr-img" alt="QR code" src="">
+          <span class="url" id="qr-url"></span>
+        </div>
+
+        <div class="qr-actions">
+          <a class="btn" id="qr-dl-svg" href="#" download>Télécharger SVG</a>
+          <a class="btn btn-outline" id="qr-dl-png" href="#" download>Télécharger PNG</a>
+        </div>
+        <p class="hint" style="margin-top:16px;text-align:center">Le SVG reste net à toutes tailles (parfait pour l'impression grand format). Le PNG passe partout (email, Word, réseaux sociaux).</p>
+      </div>
+
+      <div class="card">
+        <h2>Réglages généraux</h2>
+        <p class="desc">Les informations affichées aux parrains et aux filleuls.</p>
+
+        <label for="nom">Nom du salon</label>
+        <input type="text" id="nom" placeholder="Coiffeur Jean">
+
+        <label for="booking_url">URL de prise de rendez-vous</label>
+        <input type="url" id="booking_url" placeholder="https://coiffeurjean.ch">
+        <p class="hint">Site vitrine, fiche Google, Planity… Cible du bouton "Prendre rendez-vous" sur la landing filleul.</p>
+
+        <div class="row-2">
+          <div>
+            <label for="panier_moyen_chf">Panier moyen (CHF)</label>
+            <input type="number" id="panier_moyen_chf" min="1" max="10000">
+            <p class="hint">Pré-remplit le panier si tu valides une visite sans choisir de prestation.</p>
+          </div>
+          <div>
+            <label for="pourcentage_reduc_filleul">Réduction filleul (%)</label>
+            <input type="number" id="pourcentage_reduc_filleul" min="0" max="100">
+            <p class="hint">Affiché sur la landing quand le filleul clique sur le lien.</p>
+          </div>
+        </div>
+
+        <label for="recompense_parrain_texte">Récompense parrain (texte)</label>
+        <input type="text" id="recompense_parrain_texte" placeholder="10 CHF de bon d'achat">
+        <p class="hint">Cité dans le SMS envoyé au parrain quand tu valides un filleul.</p>
+
+        <div class="actions">
+          <button class="btn" onclick="saveGeneral()" id="save-general">Enregistrer</button>
+        </div>
+        <div class="msg" id="msg-general"></div>
+      </div>
+
+      <div class="card danger-zone">
+        <h2>Mot de passe</h2>
+        <p class="desc">Change ton mot de passe régulièrement pour sécuriser ton dashboard.</p>
+
+        <label for="current_password">Mot de passe actuel</label>
+        <input type="password" id="current_password" autocomplete="current-password">
+
+        <label for="new_password">Nouveau mot de passe</label>
+        <input type="password" id="new_password" autocomplete="new-password">
+        <p class="hint">Minimum 8 caractères. Utilise un vrai mot de passe fort.</p>
+
+        <div class="actions">
+          <button class="btn" onclick="changePassword()" id="save-pw">Changer le mot de passe</button>
+        </div>
+        <div class="msg" id="msg-pw"></div>
+      </div>
+
+    </div>
+  </main>
 </div>
 
-<div class="content" id="content">
-  <div class="loading" id="loading">Chargement…</div>
-
-  <div id="main-content" style="display:none">
-    <h1>Réglages du salon</h1>
-    <p class="subtitle">Configure ton programme de parrainage. Toute modification est immédiate.</p>
-
-    <!-- SECTION QR -->
-    <div class="section">
-      <h2>QR code d'inscription</h2>
-      <p class="desc">Imprime ce QR code et pose-le en caisse. Quand un client le scanne, il arrive sur ta page d'inscription parrain.</p>
-
-      <div class="qr-preview">
-        <img id="qr-img" alt="QR code" src="">
-        <span class="url" id="qr-url"></span>
-      </div>
-
-      <div class="qr-actions">
-        <a class="btn" id="qr-dl-svg" href="#" download>Télécharger SVG</a>
-        <a class="btn btn-outline" id="qr-dl-png" href="#" download>Télécharger PNG</a>
-      </div>
-      <p class="hint" style="margin-top:16px;text-align:center">Le SVG reste net à toutes tailles (parfait pour l'impression grand format). Le PNG passe partout (email, Word, réseaux sociaux).</p>
-    </div>
-
-    <!-- SECTION GENERAL -->
-    <div class="section">
-      <h2>Réglages généraux</h2>
-      <p class="desc">Les informations affichées aux parrains et aux filleuls.</p>
-
-      <label for="nom">Nom du salon</label>
-      <input type="text" id="nom" placeholder="Coiffeur Jean">
-
-      <label for="booking_url">URL de prise de rendez-vous</label>
-      <input type="url" id="booking_url" placeholder="https://coiffeurjean.ch">
-      <p class="hint">Site vitrine, fiche Google, Planity… Cible du bouton "Prendre rendez-vous" sur la landing filleul.</p>
-
-      <div class="row-2">
-        <div>
-          <label for="panier_moyen_chf">Panier moyen (CHF)</label>
-          <input type="number" id="panier_moyen_chf" min="1" max="10000">
-          <p class="hint">Utilisé pour pré-remplir le panier lors d'une validation filleul.</p>
-        </div>
-        <div>
-          <label for="pourcentage_reduc_filleul">Réduction filleul (%)</label>
-          <input type="number" id="pourcentage_reduc_filleul" min="0" max="100">
-          <p class="hint">Affiché sur la landing quand un filleul clique sur le lien.</p>
-        </div>
-      </div>
-
-      <label for="recompense_parrain_texte">Récompense parrain (texte)</label>
-      <input type="text" id="recompense_parrain_texte" placeholder="10 CHF de bon d'achat">
-      <p class="hint">Cité dans le SMS envoyé au parrain quand tu valides un filleul.</p>
-
-      <div class="actions">
-        <button class="btn" onclick="saveGeneral()" id="save-general">Enregistrer</button>
-      </div>
-      <div class="msg" id="msg-general"></div>
-    </div>
-
-    <!-- SECTION SMS -->
-    <div class="section">
-      <h2>Templates SMS</h2>
-      <p class="desc">Personnalise le contenu des SMS envoyés. Laisse vide pour utiliser le template par défaut.</p>
-
-      <label for="sms_template_parrain">SMS d'inscription parrain</label>
-      <textarea id="sms_template_parrain" placeholder="Laisse vide pour le template par défaut"></textarea>
-      <p class="hint">Variables disponibles : <code>{prenom}</code> <code>{salon}</code> <code>{lien}</code>. La variable <code>{lien}</code> est <strong>obligatoire</strong> — c'est ce que le parrain partage.</p>
-
-      <label for="sms_template_recompense">SMS de récompense parrain</label>
-      <textarea id="sms_template_recompense" placeholder="Laisse vide pour le template par défaut"></textarea>
-      <p class="hint">Variables : <code>{prenom}</code> <code>{prenom_filleul}</code> <code>{recompense}</code> <code>{salon}</code>.</p>
-
-      <div class="actions">
-        <button class="btn" onclick="saveSms()" id="save-sms">Enregistrer</button>
-      </div>
-      <div class="msg" id="msg-sms"></div>
-    </div>
-
-    <!-- SECTION PASSWORD -->
-    <div class="section danger-zone">
-      <h2>Mot de passe</h2>
-      <p class="desc">Change ton mot de passe régulièrement pour sécuriser ton dashboard.</p>
-
-      <label for="current_password">Mot de passe actuel</label>
-      <input type="password" id="current_password" autocomplete="current-password">
-
-      <label for="new_password">Nouveau mot de passe</label>
-      <input type="password" id="new_password" autocomplete="new-password">
-      <p class="hint">Minimum 8 caractères. Utilise un vrai mot de passe fort si tu comptes déployer chez de vrais clients.</p>
-
-      <div class="actions">
-        <button class="btn" onclick="changePassword()" id="save-pw">Changer le mot de passe</button>
-      </div>
-      <div class="msg" id="msg-pw"></div>
-    </div>
-  </div>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
   const $ = id => document.getElementById(id);
   let salonSlug = null;
+
+  function toggleSidebar() {
+    $('sidebar').classList.toggle('open');
+    $('sidebar-overlay').classList.toggle('open');
+  }
 
   function showMsg(elId, text, type = 'ok') {
     const el = $(elId);
@@ -288,13 +161,15 @@
     setTimeout(() => { el.className = 'msg'; }, 5000);
   }
 
+  async function handleLogout() {
+    try { await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch {}
+    window.location.href = '/dashboard';
+  }
+
   async function loadSettings() {
     try {
       const res = await fetch('/api/dashboard/settings', { credentials: 'include' });
-      if (res.status === 401) {
-        window.location.href = '/dashboard';
-        return;
-      }
+      if (res.status === 401) { window.location.href = '/dashboard'; return; }
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
 
@@ -305,8 +180,6 @@
       $('panier_moyen_chf').value = data.salon.panier_moyen_chf ?? 65;
       $('pourcentage_reduc_filleul').value = data.salon.pourcentage_reduc_filleul ?? 15;
       $('recompense_parrain_texte').value = data.salon.recompense_parrain_texte || '';
-      $('sms_template_parrain').value = data.salon.sms_template_parrain || '';
-      $('sms_template_recompense').value = data.salon.sms_template_recompense || '';
 
       const origin = window.location.origin;
       const targetUrl = `${origin}/?salon=${encodeURIComponent(salonSlug)}`;
@@ -361,13 +234,6 @@
     if ($('nom').value.trim()) {
       $('salon-badge').textContent = $('nom').value.trim();
     }
-  }
-
-  async function saveSms() {
-    await patchSettings({
-      sms_template_parrain: $('sms_template_parrain').value,
-      sms_template_recompense: $('sms_template_recompense').value,
-    }, 'msg-sms', 'save-sms');
   }
 
   async function changePassword() {
