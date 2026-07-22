@@ -250,7 +250,7 @@
     btn.textContent = 'Mise à jour…';
 
     try {
-      const res = await fetch('/api/dashboard/change-password', {
+      const res = await fetch('/api/dashboard/settings?action=change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
