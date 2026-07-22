@@ -115,6 +115,34 @@
     font-family: monospace;
   }
   .result-box a { color: var(--purple); word-break: break-all; }
+  .qr-preview {
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--white);
+    border-radius: 12px;
+  }
+  .qr-preview img {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+  }
+  .qr-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .qr-buttons a {
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .qr-buttons a.svg { background: var(--purple); color: var(--white); }
+  .qr-buttons a.png { background: var(--white); color: var(--purple); border: 1.5px solid var(--purple); }
 </style>
 </head>
 <body>
@@ -216,14 +244,22 @@
       msg.className = 'msg ok';
 
       const origin = window.location.origin;
+      const slugEnc = encodeURIComponent(data.salon.slug);
       resultBox.innerHTML = `
         <strong>Salon "${escapeHtml(data.salon.nom)}" prêt.</strong><br><br>
         <strong>Slug :</strong> <code>${escapeHtml(data.salon.slug)}</code><br>
         <strong>Page d'inscription parrain :</strong><br>
-        <a href="${origin}/?salon=${encodeURIComponent(data.salon.slug)}" target="_blank">${origin}/?salon=${encodeURIComponent(data.salon.slug)}</a><br><br>
+        <a href="${origin}/?salon=${slugEnc}" target="_blank">${origin}/?salon=${slugEnc}</a><br><br>
         <strong>Dashboard salon :</strong><br>
         <a href="${origin}/dashboard" target="_blank">${origin}/dashboard</a><br>
         (le salon se connecte avec son slug et le mot de passe que tu viens de définir)
+        <div class="qr-preview">
+          <img src="/api/qr?slug=${slugEnc}&format=svg" alt="QR code">
+          <div class="qr-buttons">
+            <a class="svg" href="/api/qr?slug=${slugEnc}&format=svg&download=1" download>Télécharger SVG</a>
+            <a class="png" href="/api/qr?slug=${slugEnc}&format=png&download=1" download>Télécharger PNG</a>
+          </div>
+        </div>
       `;
       resultBox.style.display = 'block';
       btn.disabled = false;
