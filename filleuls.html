@@ -20,6 +20,7 @@
       <a href="/parrains"><span class="icon">👥</span> Parrains</a>
       <a href="/filleuls" class="active"><span class="icon">👋</span> Filleuls</a>
       <a href="/offres"><span class="icon">✂️</span> Offres</a>
+      <a href="/recompense"><span class="icon">🎁</span> Récompense</a>
       <a href="/templates"><span class="icon">💬</span> Templates SMS</a>
       <a href="/settings"><span class="icon">⚙️</span> Paramètres</a>
     </nav>
@@ -60,7 +61,6 @@
             <th>Via parrain</th>
             <th>Prestation</th>
             <th class="right">Panier</th>
-            <th>Notes</th>
           </tr>
         </thead>
         <tbody id="filleuls-tbody"></tbody>
@@ -150,7 +150,6 @@
       const date = f.visited_at ? new Date(f.visited_at).toLocaleDateString('fr-CH') : '—';
       const parrainName = f.parrain?.prenom || '—';
       const prestation = f.prestation_nom || '<span style="color:var(--gray)">saisie libre</span>';
-      const notes = f.notes ? escapeHtml(f.notes) : '<span style="color:var(--gray)">—</span>';
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -159,7 +158,6 @@
         <td>${escapeHtml(parrainName)}${f.parrain_code ? ` <span class="code-badge">${escapeHtml(f.parrain_code)}</span>` : ''}</td>
         <td>${prestation}</td>
         <td class="ca">${f.panier_chf} CHF</td>
-        <td style="font-size:12px;color:var(--gray)">${notes}</td>
       `;
       tbody.appendChild(tr);
 
@@ -172,7 +170,6 @@
         </div>
         <div class="meta">Via <strong>${escapeHtml(parrainName)}</strong> · ${date}</div>
         ${f.prestation_nom ? `<div class="meta">Prestation : ${escapeHtml(f.prestation_nom)}</div>` : ''}
-        ${f.notes ? `<div class="meta" style="margin-top:8px;font-style:italic">"${escapeHtml(f.notes)}"</div>` : ''}
       `;
       cardsWrap.appendChild(card);
     });

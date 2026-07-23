@@ -67,6 +67,7 @@
       <a href="/parrains"><span class="icon">👥</span> Parrains</a>
       <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
       <a href="/offres"><span class="icon">✂️</span> Offres</a>
+      <a href="/recompense"><span class="icon">🎁</span> Récompense</a>
       <a href="/templates"><span class="icon">💬</span> Templates SMS</a>
       <a href="/settings"><span class="icon">⚙️</span> Paramètres</a>
     </nav>
@@ -101,7 +102,7 @@
       <div class="stat">
         <div class="label">Panier moyen filleul</div>
         <div class="value" id="stat-panier-moyen">—</div>
-        <div class="sub" id="stat-panier-sub">—</div>
+        <div class="sub">moyenne réelle des visites</div>
       </div>
     </div>
 
@@ -221,7 +222,6 @@
         ? Math.round(data.stats.ca_total_chf / data.stats.total_filleuls_venus)
         : 0;
       $('stat-panier-moyen').textContent = panierMoyen + ' CHF';
-      $('stat-panier-sub').textContent = `réglé à ${data.salon.panier_moyen_chf || 65} CHF`;
 
       const topParrains = [...data.parrains].sort((a, b) => b.ca_genere_chf - a.ca_genere_chf).slice(0, 5);
       const topEl = $('top-parrains');

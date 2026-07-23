@@ -53,6 +53,7 @@
       <a href="/parrains"><span class="icon">👥</span> Parrains</a>
       <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
       <a href="/offres"><span class="icon">✂️</span> Offres</a>
+      <a href="/recompense"><span class="icon">🎁</span> Récompense</a>
       <a href="/templates"><span class="icon">💬</span> Templates SMS</a>
       <a href="/settings" class="active"><span class="icon">⚙️</span> Paramètres</a>
     </nav>
@@ -96,25 +97,8 @@
         <input type="text" id="nom" placeholder="Coiffeur Jean">
 
         <label for="booking_url">URL de prise de rendez-vous</label>
-        <input type="url" id="booking_url" placeholder="https://coiffeurjean.ch">
-        <p class="hint">Site vitrine, fiche Google, Planity… Cible du bouton "Prendre rendez-vous" sur la landing filleul.</p>
-
-        <div class="row-2">
-          <div>
-            <label for="panier_moyen_chf">Panier moyen (CHF)</label>
-            <input type="number" id="panier_moyen_chf" min="1" max="10000">
-            <p class="hint">Pré-remplit le panier si tu valides une visite sans choisir de prestation.</p>
-          </div>
-          <div>
-            <label for="pourcentage_reduc_filleul">Réduction filleul (%)</label>
-            <input type="number" id="pourcentage_reduc_filleul" min="0" max="100">
-            <p class="hint">Affiché sur la landing quand le filleul clique sur le lien.</p>
-          </div>
-        </div>
-
-        <label for="recompense_parrain_texte">Récompense parrain (texte)</label>
-        <input type="text" id="recompense_parrain_texte" placeholder="10 CHF de bon d'achat">
-        <p class="hint">Cité dans le SMS envoyé au parrain quand tu valides un filleul.</p>
+        <input type="url" id="booking_url" placeholder="https://tonsalon.ch">
+        <p class="hint">Où le filleul est redirigé quand il clique "Prendre rendez-vous" sur ta landing.</p>
 
         <div class="actions">
           <button class="btn" onclick="saveGeneral()" id="save-general">Enregistrer</button>
@@ -177,9 +161,6 @@
       $('salon-badge').textContent = data.salon.nom || data.salon.slug;
       $('nom').value = data.salon.nom || '';
       $('booking_url').value = data.salon.booking_url || '';
-      $('panier_moyen_chf').value = data.salon.panier_moyen_chf ?? 65;
-      $('pourcentage_reduc_filleul').value = data.salon.pourcentage_reduc_filleul ?? 15;
-      $('recompense_parrain_texte').value = data.salon.recompense_parrain_texte || '';
 
       const origin = window.location.origin;
       const targetUrl = `${origin}/?salon=${encodeURIComponent(salonSlug)}`;
@@ -227,9 +208,6 @@
     await patchSettings({
       nom: $('nom').value,
       booking_url: $('booking_url').value,
-      panier_moyen_chf: Number($('panier_moyen_chf').value),
-      pourcentage_reduc_filleul: Number($('pourcentage_reduc_filleul').value),
-      recompense_parrain_texte: $('recompense_parrain_texte').value,
     }, 'msg-general', 'save-general');
     if ($('nom').value.trim()) {
       $('salon-badge').textContent = $('nom').value.trim();

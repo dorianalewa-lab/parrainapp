@@ -212,7 +212,6 @@
 
   async function renderValidateForm(parrain, prestations, salon) {
     const prenom = escapeHtml(parrain.prenom);
-    const panierMoyen = salon.panier_moyen_chf || 65;
 
     let optionsHtml = '<option value="">— Aucune (saisie libre) —</option>';
     if (prestations.length > 0) {
@@ -239,7 +238,7 @@
       ${noPrestationsHint}
 
       <label for="panier">Panier réalisé (CHF)</label>
-      <input type="number" id="panier" min="1" step="1" value="${panierMoyen}">
+      <input type="number" id="panier" min="1" step="1" placeholder="Se remplit avec la prestation">
 
       <p class="err-msg" id="err"></p>
 

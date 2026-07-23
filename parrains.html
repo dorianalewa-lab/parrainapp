@@ -20,6 +20,7 @@
       <a href="/parrains" class="active"><span class="icon">👥</span> Parrains</a>
       <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
       <a href="/offres"><span class="icon">✂️</span> Offres</a>
+      <a href="/recompense"><span class="icon">🎁</span> Récompense</a>
       <a href="/templates"><span class="icon">💬</span> Templates SMS</a>
       <a href="/settings"><span class="icon">⚙️</span> Paramètres</a>
     </nav>
@@ -46,11 +47,8 @@
             <th>Parrain</th>
             <th>Téléphone</th>
             <th>Code</th>
-            <th class="num">Clics</th>
-            <th class="num">Clics RDV</th>
             <th class="num">Filleuls</th>
             <th class="right">CA</th>
-            <th></th>
           </tr>
         </thead>
         <tbody id="parrains-tbody"></tbody>
@@ -65,44 +63,10 @@
   </main>
 </div>
 
-<!-- MODAL VALIDATE -->
-<div class="modal-overlay" id="modal-validate">
-  <div class="modal">
-    <h3>Nouvelle visite validée</h3>
-    <p class="hint">Enregistre la visite d'un filleul de <strong id="modal-parrain-name">?</strong>. Un SMS de récompense partira automatiquement.</p>
-
-    <label for="prestation-select">Prestation</label>
-    <select id="prestation-select" onchange="onPrestationChange()">
-      <option value="">— Aucune (saisie libre) —</option>
-    </select>
-    <p class="hint" id="no-prestations-hint" style="display:none">Aucune prestation configurée. <a href="/offres" style="color:var(--purple)">Ajouter des prestations →</a></p>
-
-    <label for="filleul-panier">Panier réalisé (CHF)</label>
-    <input type="number" id="filleul-panier" min="1" step="1">
-    <p class="hint">Se remplit automatiquement quand tu choisis une prestation. Éditable si besoin.</p>
-
-    <label for="filleul-prenom">Prénom du filleul <span style="color:var(--gray);font-weight:400">(facultatif)</span></label>
-    <input type="text" id="filleul-prenom" placeholder="Laisse vide si tu ne te souviens plus">
-
-    <label for="filleul-notes">Notes <span style="color:var(--gray);font-weight:400">(facultatif)</span></label>
-    <textarea id="filleul-notes" placeholder="ex: cliente rousse, cheveux longs" style="min-height:60px"></textarea>
-
-    <p class="modal-error" id="modal-error"></p>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
-      <button class="btn-confirm" id="modal-confirm" onclick="confirmValidate()">Valider ✓</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
   const $ = id => document.getElementById(id);
-  let pendingParrainId = null;
-  let salonPanierMoyen = 65;
-  let prestationsMap = new Map();
 
   function toggleSidebar() {
     $('sidebar').classList.toggle('open');
@@ -129,32 +93,14 @@
 
   async function loadPage() {
     try {
-      const [clientsRes, prestationsRes] = await Promise.all([
-        fetch('/api/dashboard/clients', { credentials: 'include' }),
-        fetch('/api/dashboard/prestations', { credentials: 'include' }),
-      ]);
+      const res = await fetch('/api/dashboard/clients', { credentials: 'include' });
+      if (res.status === 401) { window.location.href = '/dashboard'; return; }
 
-      if (clientsRes.status === 401) { window.location.href = '/dashboard'; return; }
-
-      const data = await clientsRes.json();
+      const data = await res.json();
       if (!data.ok) throw new Error(data.error);
 
       $('salon-badge').textContent = data.salon.nom;
       $('qr-link').href = `/?salon=${encodeURIComponent(data.salon.slug)}`;
-      salonPanierMoyen = data.salon.panier_moyen_chf || 65;
-
-      const pData = await prestationsRes.json().catch(() => ({ prestations: [] }));
-      const prestations = pData.prestations || [];
-      const sel = $('prestation-select');
-      sel.innerHTML = '<option value="">— Aucune (saisie libre) —</option>';
-      prestations.forEach(p => {
-        prestationsMap.set(p.id, p);
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = `${p.nom} — ${p.prix_chf} CHF`;
-        sel.appendChild(opt);
-      });
-      $('no-prestations-hint').style.display = prestations.length === 0 ? 'block' : 'none';
 
       renderParrains(data.parrains);
     } catch (e) {
@@ -179,7 +125,6 @@
     list.forEach(p => {
       const date = p.created_at ? new Date(p.created_at).toLocaleDateString('fr-CH') : '—';
       const prenom = escapeHtml(p.prenom);
-      const prenomEsc = prenom.replace(/'/g, "\\'");
       const tel = escapeHtml(p.telephone);
       const code = escapeHtml(p.code_court);
       const ca = p.ca_genere_chf + ' CHF';
@@ -189,11 +134,8 @@
         <td><strong>${prenom}</strong><br><span style="font-size:12px;color:var(--gray)">inscrit ${date}</span></td>
         <td style="color:var(--gray)">${tel}</td>
         <td><span class="code-badge">${code}</span></td>
-        <td class="num">${p.nb_clics_landing}</td>
-        <td class="num">${p.nb_clics_rdv}</td>
         <td class="num">${p.nb_filleuls_venus}</td>
         <td class="ca">${escapeHtml(ca)}</td>
-        <td><button class="btn-add" onclick="openValidate('${p.id}', '${prenomEsc}')">+ Visite</button></td>
       `;
       tbody.appendChild(tr);
 
@@ -206,97 +148,12 @@
         </div>
         <div class="meta">${tel} · <span class="code-badge">${code}</span> · inscrit ${date}</div>
         <div class="metrics">
-          <div>Clics <strong>${p.nb_clics_landing}</strong></div>
-          <div>RDV <strong>${p.nb_clics_rdv}</strong></div>
-          <div>Filleuls <strong>${p.nb_filleuls_venus}</strong></div>
-        </div>
-        <div class="actions">
-          <button class="btn-add" onclick="openValidate('${p.id}', '${prenomEsc}')">+ Nouvelle visite</button>
+          <div>Filleuls venus <strong>${p.nb_filleuls_venus}</strong></div>
         </div>
       `;
       cardsWrap.appendChild(card);
     });
   }
-
-  function openValidate(parrainId, parrainPrenom) {
-    pendingParrainId = parrainId;
-    $('modal-parrain-name').textContent = parrainPrenom;
-    $('prestation-select').value = '';
-    $('filleul-prenom').value = '';
-    $('filleul-notes').value = '';
-    $('filleul-panier').value = salonPanierMoyen;
-    $('modal-error').style.display = 'none';
-    $('modal-validate').classList.add('open');
-    setTimeout(() => $('prestation-select').focus(), 60);
-  }
-
-  function closeModal() {
-    $('modal-validate').classList.remove('open');
-    pendingParrainId = null;
-  }
-
-  function onPrestationChange() {
-    const id = $('prestation-select').value;
-    if (id && prestationsMap.has(id)) {
-      $('filleul-panier').value = prestationsMap.get(id).prix_chf;
-    }
-  }
-
-  async function confirmValidate() {
-    const panier = Number($('filleul-panier').value);
-    const prestationId = $('prestation-select').value || null;
-    const err = $('modal-error');
-    const btn = $('modal-confirm');
-    err.style.display = 'none';
-
-    if (!panier || panier <= 0) {
-      err.textContent = 'Choisis une prestation ou tape un panier.';
-      err.style.display = 'block';
-      return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Validation…';
-
-    try {
-      const res = await fetch('/api/dashboard/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          parrain_id: pendingParrainId,
-          prestation_id: prestationId,
-          panier_chf: panier,
-          prenom_filleul: $('filleul-prenom').value.trim() || null,
-          notes: $('filleul-notes').value.trim() || null,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || !data.ok) {
-        err.textContent = data.error || 'Erreur.';
-        err.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Valider ✓';
-        return;
-      }
-
-      closeModal();
-      btn.disabled = false;
-      btn.textContent = 'Valider ✓';
-      showToast(data.warning || '✓ Visite validée, SMS envoyé');
-      await loadPage();
-    } catch (e) {
-      err.textContent = 'Impossible de contacter le serveur.';
-      err.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Valider ✓';
-    }
-  }
-
-  $('modal-validate').addEventListener('click', e => {
-    if (e.target === $('modal-validate')) closeModal();
-  });
 
   loadPage();
 </script>
