@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp – Programme de parrainage</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>ParrainApp — Le parrainage salon, automatisé</title>
+<meta name="description" content="Le parrainage salon qui tourne tout seul. QR code en caisse, SMS de recommandation, récompenses automatiques. Gratuit pour les 10 premiers salons pilotes.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -12,6 +13,7 @@
     --purple: #5B21B6;
     --purple-light: #EDE9FE;
     --purple-mid: #7C3AED;
+    --purple-dark: #4C1D95;
     --dark: #1E1B4B;
     --gray: #6B7280;
     --light: #F9F8FF;
@@ -20,16 +22,423 @@
     --radius: 16px;
   }
 
+  html { scroll-behavior: smooth; }
+
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--light);
-    min-height: 100vh;
+    color: var(--dark);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ================================
+     LANDING
+     ================================ */
+
+  #landing-view { display: none; }
+  .landing { max-width: 100%; overflow-x: hidden; }
+
+  /* Nav */
+  .nav {
+    padding: 20px 32px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .nav .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  .nav .logo span { color: var(--purple); }
+  .nav .nav-cta {
+    background: var(--purple);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+  }
+  .nav .nav-cta:hover { background: var(--purple-mid); }
+
+  /* Hero */
+  .hero {
+    padding: 60px 24px 80px;
+    background: radial-gradient(circle at 30% 20%, var(--purple-light) 0%, var(--light) 60%);
+    text-align: center;
+  }
+  .hero .inner { max-width: 900px; margin: 0 auto; }
+  .hero .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    color: var(--purple);
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 2px 12px rgba(91,33,182,0.08);
+    margin-bottom: 28px;
+  }
+  .hero .badge::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(5,150,105,0.2);
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5.5vw, 54px);
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--dark);
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .accent { color: var(--purple); }
+  .hero .subtitle {
+    font-size: clamp(16px, 2vw, 19px);
+    color: var(--gray);
+    max-width: 640px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+  .hero .cta-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 28px;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--purple);
+    color: var(--white);
+    box-shadow: 0 8px 24px rgba(91,33,182,0.25);
+  }
+  .btn-primary:hover { background: var(--purple-mid); transform: translateY(-1px); box-shadow: 0 12px 32px rgba(91,33,182,0.3); }
+  .btn-outline {
+    background: var(--white);
+    color: var(--purple);
+    border: 1.5px solid var(--purple-light);
+  }
+  .btn-outline:hover { background: var(--purple-light); }
+
+  .signals {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--gray);
+    margin-top: 24px;
+  }
+  .signals span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* Sections */
+  .section {
+    padding: 80px 24px;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .section-header {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 56px;
+  }
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--purple);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .section-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    color: var(--dark);
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .section-header p {
+    font-size: 17px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* Pain grid */
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .pain-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    box-shadow: 0 2px 16px rgba(91,33,182,0.05);
+    border: 1px solid rgba(91,33,182,0.06);
+  }
+  .pain-card .icon {
+    font-size: 40px;
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .pain-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .pain-card p {
+    color: var(--gray);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  @media (max-width: 900px) {
+    .pain-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Steps */
+  .steps-section { background: var(--white); }
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 32px;
+    align-items: start;
+    padding: 24px 0;
+  }
+  .step-number {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-mid) 100%);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(91,33,182,0.25);
+  }
+  .step-content h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--dark);
+  }
+  .step-content p {
+    font-size: 16px;
+    color: var(--gray);
+    max-width: 640px;
+    line-height: 1.65;
+  }
+  .step-content .visual {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: var(--purple-light);
+    color: var(--purple);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: monospace;
+  }
+  @media (max-width: 600px) {
+    .step { grid-template-columns: 1fr; gap: 16px; }
+    .step-number { width: 48px; height: 48px; font-size: 18px; }
+  }
+
+  /* Benefits */
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .benefit {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 32px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    box-shadow: 0 2px 16px rgba(91,33,182,0.05);
+  }
+  .benefit .icon {
+    width: 56px;
+    height: 56px;
+    background: var(--purple-light);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .benefit h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--dark);
+  }
+  .benefit p {
+    color: var(--gray);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  @media (max-width: 700px) {
+    .benefits-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Target audience */
+  .targets-section { background: var(--white); }
+  .targets {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .target {
+    background: var(--light);
+    border-radius: 14px;
+    padding: 24px 16px;
+    text-align: center;
+    transition: transform 0.15s;
+    border: 1px solid transparent;
+  }
+  .target:hover {
+    transform: translateY(-2px);
+    border-color: var(--purple-light);
+  }
+  .target .icon { font-size: 32px; margin-bottom: 10px; display: block; }
+  .target span { font-size: 13px; font-weight: 500; color: var(--dark); }
+  @media (max-width: 700px) {
+    .targets { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Pilote CTA */
+  .pilote-section {
+    background: linear-gradient(135deg, var(--dark) 0%, var(--purple-dark) 100%);
+    color: var(--white);
+    padding: 96px 24px;
+    text-align: center;
+  }
+  .pilote-inner { max-width: 720px; margin: 0 auto; }
+  .pilote-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    color: var(--white);
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+  }
+  .pilote-section h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4.5vw, 44px);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    color: var(--white);
+  }
+  .pilote-section p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+  .pilote-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    color: var(--purple);
+    padding: 20px 36px;
+    border-radius: 14px;
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .pilote-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  }
+  .pilote-hint {
+    display: block;
+    margin-top: 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* Footer */
+  .footer {
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--gray);
+    font-size: 13px;
+    border-top: 1px solid rgba(91,33,182,0.08);
+  }
+  .footer .logo { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--dark); margin-bottom: 8px; display: inline-block; }
+  .footer .logo span { color: var(--purple); }
+  .footer a { color: var(--purple); }
+
+  /* ================================
+     INSCRIPTION FORM (existing)
+     ================================ */
+  #inscription-view {
+    display: none;
+    min-height: 100vh;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 24px 16px;
   }
+  #inscription-view.show { display: flex; }
 
   .card {
     background: var(--white);
@@ -39,8 +448,7 @@
     padding: 40px 32px;
     box-shadow: 0 4px 40px rgba(91,33,182,0.08);
   }
-
-  .badge {
+  .form-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -53,15 +461,12 @@
     border-radius: 100px;
     margin-bottom: 20px;
   }
-
-  .badge::before {
+  .form-badge::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     background: var(--purple-mid);
     border-radius: 50%;
   }
-
   .salon-name {
     font-family: 'Syne', sans-serif;
     font-size: 28px;
@@ -70,14 +475,12 @@
     line-height: 1.2;
     margin-bottom: 8px;
   }
-
   .tagline {
     font-size: 15px;
     color: var(--gray);
     line-height: 1.6;
     margin-bottom: 32px;
   }
-
   .offer-box {
     background: var(--purple-light);
     border-radius: var(--radius);
@@ -87,10 +490,8 @@
     align-items: center;
     gap: 16px;
   }
-
   .offer-icon {
-    width: 48px;
-    height: 48px;
+    width: 48px; height: 48px;
     background: var(--purple);
     border-radius: 12px;
     display: flex;
@@ -99,7 +500,6 @@
     flex-shrink: 0;
     font-size: 22px;
   }
-
   .offer-text strong {
     display: block;
     font-family: 'Syne', sans-serif;
@@ -108,26 +508,16 @@
     color: var(--dark);
     margin-bottom: 2px;
   }
-
-  .offer-text span {
-    font-size: 13px;
-    color: var(--purple);
-  }
-
-  .form-group {
-    margin-bottom: 16px;
-  }
-
-  label {
+  .offer-text span { font-size: 13px; color: var(--purple); }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
     display: block;
     font-size: 13px;
     font-weight: 500;
     color: var(--dark);
     margin-bottom: 6px;
   }
-
-  input[type="text"],
-  input[type="tel"] {
+  input[type="text"], input[type="tel"] {
     width: 100%;
     padding: 14px 16px;
     border: 1.5px solid #E5E7EB;
@@ -139,18 +529,7 @@
     transition: border-color 0.2s;
     outline: none;
   }
-
-  input[type="text"]:focus,
-  input[type="tel"]:focus {
-    border-color: var(--purple-mid);
-  }
-
-  .hint {
-    font-size: 12px;
-    color: var(--gray);
-    margin-top: 4px;
-  }
-
+  input[type="text"]:focus, input[type="tel"]:focus { border-color: var(--purple-mid); }
   .phone-wrapper {
     display: flex;
     align-items: center;
@@ -159,11 +538,7 @@
     overflow: hidden;
     transition: border-color 0.2s;
   }
-
-  .phone-wrapper:focus-within {
-    border-color: var(--purple-mid);
-  }
-
+  .phone-wrapper:focus-within { border-color: var(--purple-mid); }
   .phone-prefix {
     padding: 14px 12px 14px 16px;
     font-family: 'DM Sans', sans-serif;
@@ -174,17 +549,7 @@
     border-right: 1.5px solid #E5E7EB;
     flex-shrink: 0;
   }
-
-  .phone-wrapper input {
-    border: none;
-    border-radius: 0;
-    flex: 1;
-  }
-
-  .phone-wrapper input:focus {
-    border-color: transparent;
-  }
-
+  .phone-wrapper input { border: none; border-radius: 0; flex: 1; }
   .consent-group {
     display: flex;
     align-items: flex-start;
@@ -194,16 +559,13 @@
     background: #F9FAFB;
     border-radius: 12px;
   }
-
   .consent-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 18px; height: 18px;
     accent-color: var(--purple-mid);
     flex-shrink: 0;
     margin-top: 2px;
     cursor: pointer;
   }
-
   .consent-group label {
     font-size: 13px;
     color: var(--gray);
@@ -212,8 +574,7 @@
     line-height: 1.5;
     cursor: pointer;
   }
-
-  .btn {
+  .form-btn {
     width: 100%;
     padding: 16px;
     background: var(--purple);
@@ -227,21 +588,12 @@
     transition: background 0.2s, transform 0.1s;
     margin-top: 8px;
   }
-
-  .btn:hover { background: var(--purple-mid); }
-  .btn:active { transform: scale(0.98); }
-  .btn:disabled { background: #C4B5FD; cursor: not-allowed; }
-
-  /* SUCCESS STATE */
-  .success {
-    display: none;
-    text-align: center;
-    padding: 20px 0;
-  }
-
+  .form-btn:hover { background: var(--purple-mid); }
+  .form-btn:active { transform: scale(0.98); }
+  .form-btn:disabled { background: #C4B5FD; cursor: not-allowed; }
+  .success { display: none; text-align: center; padding: 20px 0; }
   .success-icon {
-    width: 64px;
-    height: 64px;
+    width: 64px; height: 64px;
     background: #D1FAE5;
     border-radius: 50%;
     display: flex;
@@ -250,21 +602,13 @@
     margin: 0 auto 20px;
     font-size: 28px;
   }
-
   .success h2 {
     font-family: 'Syne', sans-serif;
     font-size: 22px;
     color: var(--dark);
     margin-bottom: 8px;
   }
-
-  .success p {
-    font-size: 14px;
-    color: var(--gray);
-    line-height: 1.6;
-  }
-
-  /* ERROR */
+  .success p { font-size: 14px; color: var(--gray); line-height: 1.6; }
   .error-msg {
     display: none;
     font-size: 13px;
@@ -272,81 +616,259 @@
     margin-top: 12px;
     text-align: center;
   }
-
   .powered {
     margin-top: 24px;
     text-align: center;
     font-size: 12px;
     color: #C4B5FD;
   }
-
-  .powered span {
-    color: var(--purple);
-    font-weight: 500;
-  }
+  .powered span { color: var(--purple); font-weight: 500; }
 </style>
 </head>
 <body>
 
-<div class="card">
+<!-- ================================
+     LANDING VIEW
+     ================================ -->
+<div id="landing-view">
+  <div class="landing">
 
-  <!-- FORM STATE -->
-  <div id="form-state">
-    <div class="badge">Programme parrainage</div>
+    <nav class="nav">
+      <div class="logo">Parrain<span>App</span></div>
+      <a href="mailto:dorian.alewa@gmail.com?subject=ParrainApp%20-%20Je%20suis%20int%C3%A9ress%C3%A9" class="nav-cta">Nous contacter</a>
+    </nav>
 
-    <h1 class="salon-name" id="salon-name">ParrainApp</h1>
-    <p class="tagline">Recommande-nous à une amie et gagne une récompense dès qu'elle vient nous rendre visite.</p>
-
-    <div class="offer-box">
-      <div class="offer-icon">🎁</div>
-      <div class="offer-text">
-        <strong>15% de réduction</strong>
-        <span>offerts sur ta prochaine visite</span>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="inner">
+        <div class="badge">En version pilote — 10 salons partenaires recherchés</div>
+        <h1>Vos meilleurs clients parlent de vous.<br><span class="accent">Récompensez-les enfin.</span></h1>
+        <p class="subtitle">ParrainApp automatise le parrainage de votre salon : QR code en caisse, SMS de recommandation, récompense automatique. Vos clients n'ont rien à installer. Vous, vous avez 3 clics à faire par visite.</p>
+        <div class="cta-group">
+          <a href="mailto:dorian.alewa@gmail.com?subject=ParrainApp%20-%20Je%20veux%20essayer" class="btn btn-primary">Rejoindre les 10 pilotes gratuits →</a>
+          <a href="#comment" class="btn btn-outline">Voir comment ça marche</a>
+        </div>
+        <div class="signals">
+          <span>✓ Aucune app à installer</span>
+          <span>✓ Gratuit pendant la phase pilote</span>
+          <span>🇨🇭 Fait pour le marché suisse</span>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="form-group">
-      <label for="prenom">Ton prénom</label>
-      <input type="text" id="prenom" placeholder="Julie" autocomplete="given-name">
-    </div>
-
-    <div class="form-group">
-      <label for="telephone">Ton numéro de téléphone</label>
-      <div class="phone-wrapper">
-        <span class="phone-prefix">+41</span>
-        <input type="tel" id="telephone" placeholder="79 123 45 67" autocomplete="tel">
+    <!-- PAIN POINTS -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-eyebrow">Le vrai problème</div>
+        <h2>Trois choses qui vous coûtent des clients chaque mois</h2>
+        <p>Sans que vous vous en rendiez compte.</p>
       </div>
+      <div class="pain-grid">
+        <div class="pain-card">
+          <div class="icon">🕵️</div>
+          <h3>Vous ne savez pas qui parle de vous</h3>
+          <p>Chaque semaine un client vous ramène une amie. Vous ne saurez jamais qui c'est, ni combien de nouveaux clients viennent réellement grâce au bouche-à-oreille.</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">🎁</div>
+          <h3>Vos promesses de récompense se perdent</h3>
+          <p>Cartes de fidélité oubliées, bons d'achat jamais réclamés, promesses tenues au mieux une fois sur trois. Résultat : vos clients arrêtent de recommander.</p>
+        </div>
+        <div class="pain-card">
+          <div class="icon">📱</div>
+          <h3>Les autres solutions sont trop compliquées</h3>
+          <p>Vos clients n'ont pas envie de télécharger une énième application. Vous n'avez pas le temps d'apprendre une plateforme de plus.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section steps-section" id="comment">
+      <div class="section-header">
+        <div class="section-eyebrow">Comment ça marche</div>
+        <h2>Un QR code, deux SMS, un dashboard.</h2>
+        <p>C'est tout. Ni plus, ni moins.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>En caisse, votre client scanne le QR code</h3>
+            <p>Après sa coupe, il rentre son prénom et son numéro de téléphone. En 20 secondes, il devient parrain officiel de votre salon. Un SMS lui arrive automatiquement avec un lien personnel à partager.</p>
+            <div class="visual">📱 Julie, ton lien : parrainapp.vercel.app/r/k3n7pq</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Il partage son lien à ses amis</h3>
+            <p>WhatsApp, message, réseaux sociaux — comme il veut. Chaque clic, chaque prise de rendez-vous, vous le voyez en direct dans votre dashboard. Vous mesurez enfin qui sont vos vrais ambassadeurs.</p>
+            <div class="visual">👋 Marie a cliqué sur le lien de Julie</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Un ami se pointe. Vous scannez son bon.</h3>
+            <p>Le filleul montre son QR code sur son téléphone. Vous ouvrez la caméra, vous choisissez la prestation qu'il a prise, vous validez. Le parrain reçoit son SMS de récompense automatiquement. Fini.</p>
+            <div class="visual">✓ Julie, tu gagnes 10 CHF de bon d'achat</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-eyebrow">Ce que ça change</div>
+        <h2>Un vrai gain de temps. Une vraie mesure. Zéro complexité.</h2>
+      </div>
+      <div class="benefits-grid">
+        <div class="benefit">
+          <div class="icon">⚡</div>
+          <div>
+            <h3>Zéro temps perdu</h3>
+            <p>Trois taps pour valider une visite. Le client paye, ParrainApp tourne, vous continuez votre journée.</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="icon">📵</div>
+          <div>
+            <h3>Aucune app à installer</h3>
+            <p>Ni pour vous, ni pour vos clients. Tout se passe par SMS et une page web. Zéro friction, aucun onboarding.</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="icon">💰</div>
+          <div>
+            <h3>CA parrainage mesuré au CHF près</h3>
+            <p>Par parrain : combien d'amis venus, quelles prestations, combien de CHF de CA généré. Un vrai indicateur, pas une estimation.</p>
+          </div>
+        </div>
+        <div class="benefit">
+          <div class="icon">🤖</div>
+          <div>
+            <h3>Récompenses envoyées toutes seules</h3>
+            <p>Vous fixez la récompense une fois (bon d'achat, réduction, cadeau). Elle part automatiquement par SMS. Zéro oubli, zéro coupon papier perdu.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOR WHO -->
+    <section class="section targets-section">
+      <div class="section-header">
+        <div class="section-eyebrow">Pour qui</div>
+        <h2>Tout métier où le bouche-à-oreille compte vraiment</h2>
+      </div>
+      <div class="targets">
+        <div class="target"><span class="icon">✂️</span><span>Salons de coiffure</span></div>
+        <div class="target"><span class="icon">💅</span><span>Onglerie / manucure</span></div>
+        <div class="target"><span class="icon">💆</span><span>Instituts de beauté</span></div>
+        <div class="target"><span class="icon">💈</span><span>Barbiers</span></div>
+        <div class="target"><span class="icon">🌸</span><span>Wellness / spa</span></div>
+        <div class="target"><span class="icon">💪</span><span>Kinésithérapie</span></div>
+        <div class="target"><span class="icon">🧘</span><span>Yoga / studios</span></div>
+        <div class="target"><span class="icon">🌿</span><span>Thérapies bien-être</span></div>
+      </div>
+    </section>
+
+    <!-- PILOTE CTA -->
+    <section class="pilote-section">
+      <div class="pilote-inner">
+        <div class="pilote-badge">🚀 Phase pilote ouverte</div>
+        <h2>Gratuit pour les 10 premiers salons pilotes</h2>
+        <p>ParrainApp est en cours de test. Nous cherchons 10 salons partenaires pour affiner l'outil avec des retours terrain. Vous êtes utilisateur gratuit pendant toute la phase pilote — en échange, vous nous envoyez vos observations et vos idées.</p>
+        <a href="mailto:dorian.alewa@gmail.com?subject=ParrainApp%20-%20Je%20veux%20essayer&body=Bonjour%2C%0A%0AJe%20suis%20int%C3%A9ress%C3%A9%20par%20ParrainApp%20pour%20mon%20salon.%0A%0ANom%20du%20salon%20%3A%0AVille%20%3A%0AT%C3%A9l%C3%A9phone%20%3A%0A%0A%C3%80%20bient%C3%B4t%2C" class="pilote-cta">
+          Écrivez-moi : dorian.alewa@gmail.com
+        </a>
+        <span class="pilote-hint">Réponse sous 24h · Aucun engagement</span>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="logo">Parrain<span>App</span></div>
+      <p>En cours de test — 2026 · Une question ? <a href="mailto:dorian.alewa@gmail.com">dorian.alewa@gmail.com</a></p>
+    </footer>
+
+  </div>
+</div>
+
+<!-- ================================
+     INSCRIPTION FORM VIEW
+     (existing, shown when ?salon=xxx)
+     ================================ -->
+<div id="inscription-view">
+  <div class="card">
+    <div id="form-state">
+      <div class="form-badge">Programme parrainage</div>
+
+      <h1 class="salon-name" id="salon-name">ParrainApp</h1>
+      <p class="tagline">Recommande-nous à une amie et gagne une récompense dès qu'elle vient nous rendre visite.</p>
+
+      <div class="offer-box">
+        <div class="offer-icon">🎁</div>
+        <div class="offer-text">
+          <strong>15% de réduction</strong>
+          <span>offerts sur ta prochaine visite</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="prenom">Ton prénom</label>
+        <input type="text" id="prenom" placeholder="Julie" autocomplete="given-name">
+      </div>
+
+      <div class="form-group">
+        <label for="telephone">Ton numéro de téléphone</label>
+        <div class="phone-wrapper">
+          <span class="phone-prefix">+41</span>
+          <input type="tel" id="telephone" placeholder="79 123 45 67" autocomplete="tel">
+        </div>
+      </div>
+
+      <div class="consent-group">
+        <input type="checkbox" id="consent">
+        <label for="consent">J'accepte de recevoir un SMS de parrainage de <strong id="salon-consent">ce salon</strong> et comprends que mon numéro sera utilisé uniquement dans ce cadre.</label>
+      </div>
+
+      <input type="text" name="website" id="hp-website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
+
+      <button class="form-btn" id="submit-btn" onclick="handleSubmit()">Je participe →</button>
+      <p class="error-msg" id="error-msg">Une erreur est survenue. Réessaie dans quelques secondes.</p>
     </div>
 
-    <div class="consent-group">
-      <input type="checkbox" id="consent">
-      <label for="consent">J'accepte de recevoir un SMS de parrainage de <strong id="salon-consent">ce salon</strong> et comprends que mon numéro sera utilisé uniquement dans ce cadre.</label>
+    <div class="success" id="success-state">
+      <div class="success-icon">✓</div>
+      <h2>C'est parti !</h2>
+      <p>Tu vas recevoir un SMS dans quelques secondes avec ton lien de parrainage personnel.<br><br>Partage-le à une amie et gagne ta récompense dès qu'elle vient nous voir. 🎉</p>
     </div>
 
-    <input type="text" name="website" id="hp-website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
-
-    <button class="btn" id="submit-btn" onclick="handleSubmit()">Je participe →</button>
-    <p class="error-msg" id="error-msg">Une erreur est survenue. Réessaie dans quelques secondes.</p>
+    <p class="powered">Propulsé par <span>ParrainApp</span></p>
   </div>
-
-  <!-- SUCCESS STATE -->
-  <div class="success" id="success-state">
-    <div class="success-icon">✓</div>
-    <h2>C'est parti !</h2>
-    <p>Tu vas recevoir un SMS dans quelques secondes avec ton lien de parrainage personnel.<br><br>Partage-le à une amie et gagne ta récompense dès qu'elle vient nous voir. 🎉</p>
-  </div>
-
-  <p class="powered">Propulsé par <span>ParrainApp</span></p>
 </div>
 
 <script>
-  // Lecture des paramètres URL
   const params = new URLSearchParams(window.location.search);
-  const salonParam = params.get('salon') || 'ParrainApp';
-  const salonDisplay = salonParam.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const salonParam = params.get('salon');
 
-  document.getElementById('salon-name').textContent = salonDisplay;
-  document.getElementById('salon-consent').textContent = salonDisplay;
+  if (salonParam) {
+    // Show inscription form
+    document.getElementById('landing-view').style.display = 'none';
+    document.getElementById('inscription-view').classList.add('show');
+
+    const salonDisplay = salonParam.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    document.getElementById('salon-name').textContent = salonDisplay;
+    document.getElementById('salon-consent').textContent = salonDisplay;
+  } else {
+    // Show landing
+    document.getElementById('landing-view').style.display = 'block';
+    document.getElementById('inscription-view').style.display = 'none';
+  }
 
   async function handleSubmit() {
     const prenom = document.getElementById('prenom').value.trim();
