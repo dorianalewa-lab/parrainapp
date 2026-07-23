@@ -143,27 +143,27 @@
 
 <div class="card">
   <div class="logo">Parrain<span>App</span></div>
-  <p class="subtitle">Créez votre compte salon en 30 secondes.<br>Vous configurerez vos prestations, réductions et récompenses ensuite depuis votre dashboard.</p>
+  <p class="subtitle">Crée ton compte salon en 30 secondes.<br>Tu configureras tes prestations, réductions et récompenses ensuite depuis ton dashboard.</p>
 
   <label for="master_password">Code d'invitation ParrainApp</label>
   <input type="password" id="master_password" autocomplete="off" placeholder="Fourni par notre équipe">
-  <div class="hint">Vous n'en avez pas ? Contactez-nous à l'adresse indiquée dans notre email de démo.</div>
+  <div class="hint">Tu n'en as pas ? Contacte-nous à l'adresse indiquée dans notre email de démo.</div>
 
-  <label for="nom">Nom de votre salon</label>
+  <label for="nom">Nom de ton salon</label>
   <input type="text" id="nom" placeholder="Coiffeur Jean">
-  <div class="hint">Affiché à vos clients sur la page d'inscription et sur les recommandations.</div>
+  <div class="hint">Affiché à tes clients sur la page d'inscription et sur les recommandations.</div>
 
   <label for="slug">Identifiant court</label>
   <input type="text" id="slug" placeholder="coiffeur-jean" autocapitalize="off">
-  <div class="hint">Lettres minuscules, chiffres et tirets uniquement. Sera dans votre URL : <code style="background:#EDE9FE;color:#5B21B6;padding:1px 6px;border-radius:4px;font-size:11px">parrainapp.vercel.app/?salon=coiffeur-jean</code></div>
+  <div class="hint">Lettres minuscules, chiffres et tirets uniquement. Sera dans ton URL : <code style="background:#EDE9FE;color:#5B21B6;padding:1px 6px;border-radius:4px;font-size:11px">parrainapp.vercel.app/?salon=coiffeur-jean</code></div>
 
   <label for="password">Mot de passe du dashboard</label>
   <input type="password" id="password" autocomplete="new-password">
-  <div class="hint">8 caractères minimum. C'est avec ça que vous vous connecterez à votre back-office.</div>
+  <div class="hint">8 caractères minimum. C'est avec ça que tu te connecteras à ton back-office.</div>
 
   <label for="booking_url">URL de prise de rendez-vous</label>
-  <input type="url" id="booking_url" placeholder="https://votresalon.ch">
-  <div class="hint">Où vos filleuls sont redirigés quand ils cliquent "Prendre rendez-vous". Modifiable plus tard.</div>
+  <input type="url" id="booking_url" placeholder="https://tonsalon.ch">
+  <div class="hint">Où tes filleuls sont redirigés quand ils cliquent "Prendre rendez-vous". Modifiable plus tard.</div>
 
   <button class="btn" onclick="handleSubmit()" id="submit-btn">Créer mon compte →</button>
 
@@ -191,7 +191,7 @@
     };
 
     if (!payload.master_password || !payload.nom || !payload.slug || !payload.password) {
-      msg.textContent = 'Merci de remplir tous les champs obligatoires.';
+      msg.textContent = 'Remplis tous les champs obligatoires.';
       msg.className = 'msg err';
       return;
     }
@@ -215,7 +215,7 @@
         return;
       }
 
-      msg.textContent = '✓ Votre compte est prêt !';
+      msg.textContent = '✓ Ton compte est prêt !';
       msg.className = 'msg ok';
 
       const origin = window.location.origin;
@@ -223,7 +223,7 @@
       resultBox.innerHTML = `
         <strong>Bienvenue chez ${escapeHtml(data.salon.nom)}.</strong><br><br>
 
-        <strong>Votre lien / QR code d'inscription client</strong> (à imprimer et poser en caisse) :<br>
+        <strong>Ton lien / QR code d'inscription client</strong> (à imprimer et poser en caisse) :<br>
         <a href="${origin}/?salon=${slugEnc}" target="_blank">${origin}/?salon=${slugEnc}</a>
 
         <div class="qr-preview">
@@ -235,9 +235,9 @@
         </div>
 
         <br>
-        <strong>Accès à votre dashboard :</strong><br>
+        <strong>Accès à ton dashboard :</strong><br>
         <a href="${origin}/dashboard" target="_blank">${origin}/dashboard</a><br>
-        Connectez-vous avec votre identifiant court <code>${escapeHtml(data.salon.slug)}</code> et le mot de passe que vous venez de définir.
+        Connecte-toi avec ton identifiant court <code>${escapeHtml(data.salon.slug)}</code> et le mot de passe que tu viens de définir.
       `;
       resultBox.style.display = 'block';
       btn.disabled = false;
@@ -247,7 +247,7 @@
       $('password').value = '';
       $('booking_url').value = '';
     } catch (e) {
-      msg.textContent = 'Impossible de contacter le serveur. Réessayez dans quelques secondes.';
+      msg.textContent = 'Impossible de contacter le serveur. Réessaie dans quelques secondes.';
       msg.className = 'msg err';
       btn.disabled = false;
       btn.textContent = 'Créer mon compte →';

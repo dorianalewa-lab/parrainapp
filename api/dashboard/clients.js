@@ -58,15 +58,15 @@ module.exports = async (req, res) => {
     const weekAgo = now - 7 * 24 * 3600 * 1000;
     const monthAgo = now - 30 * 24 * 3600 * 1000;
 
-    const totalCa = parrainsData.reduce((s, p) => s + p.ca_genere_chf, 0);
-    const totalFilleuls = parrainsData.reduce((s, p) => s + p.nb_filleuls_venus, 0);
+    const totalCaAll = filleulsRows.reduce((s, f) => s + (Number(f.get('panier_chf')) || 0), 0);
+    const totalFilleulsAll = filleulsRows.length;
 
     const stats = {
       total_parrains: parrainsData.length,
       parrains_semaine: parrainsData.filter(p => p.created_at && new Date(p.created_at).getTime() >= weekAgo).length,
       parrains_mois: parrainsData.filter(p => p.created_at && new Date(p.created_at).getTime() >= monthAgo).length,
-      total_filleuls_venus: totalFilleuls,
-      ca_total_chf: totalCa,
+      total_filleuls_venus: totalFilleulsAll,
+      ca_total_chf: totalCaAll,
     };
 
     return res.status(200).json({
