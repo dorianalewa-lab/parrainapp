@@ -466,5 +466,7 @@ tbody td.ca { font-family: 'Syne', sans-serif; font-weight: 600; color: var(--gr
 .login-card .logo span { color: var(--purple); }
 .login-card p { font-size: 14px; color: var(--gray); margin-bottom: 24px; }
 .login-card input { margin-bottom: 14px; }
+.login-card input.error { border-color: var(--red); background: #FEF2F2; }
+.login-card input.error:focus { border-color: var(--red); }
 .login-card .btn { width: 100%; padding: 14px; margin-top: 8px; }
 .login-error { font-size: 13px; color: var(--red); margin: 8px 0 12px; display: none; }

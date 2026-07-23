@@ -70,6 +70,8 @@
     transition: border-color 0.15s;
   }
   input:focus { border-color: var(--purple-mid); }
+  input.error { border-color: var(--red); background: #FEF2F2; }
+  input.error:focus { border-color: var(--red); }
   .hint { font-size: 12px; color: var(--gray); margin-top: 4px; line-height: 1.5; }
   .btn {
     width: 100%;
@@ -174,12 +176,27 @@
 <script>
   const $ = id => document.getElementById(id);
 
+  const FIELDS = ['master_password','nom','slug','password','booking_url'];
+
+  function clearErrors() {
+    FIELDS.forEach(id => $(id).classList.remove('error'));
+    const msg = $('msg');
+    msg.className = 'msg';
+    msg.textContent = '';
+  }
+
+  function showError(text, fieldIds = []) {
+    const msg = $('msg');
+    msg.textContent = text;
+    msg.className = 'msg err';
+    fieldIds.forEach(id => $(id).classList.add('error'));
+    if (fieldIds.length > 0) $(fieldIds[0]).focus();
+  }
+
   async function handleSubmit() {
     const btn = $('submit-btn');
-    const msg = $('msg');
     const resultBox = $('result-box');
-    msg.className = 'msg';
-    msg.style.display = 'none';
+    clearErrors();
     resultBox.style.display = 'none';
 
     const payload = {
@@ -190,9 +207,29 @@
       booking_url: $('booking_url').value.trim(),
     };
 
-    if (!payload.master_password || !payload.nom || !payload.slug || !payload.password) {
-      msg.textContent = 'Remplis tous les champs obligatoires.';
-      msg.className = 'msg err';
+    const missing = [];
+    if (!payload.master_password) missing.push('master_password');
+    if (!payload.nom) missing.push('nom');
+    if (!payload.slug) missing.push('slug');
+    if (!payload.password) missing.push('password');
+
+    if (missing.length > 0) {
+      showError('Remplis tous les champs obligatoires.', missing);
+      return;
+    }
+
+    if (!/^[a-z0-9-]{2,50}$/.test(payload.slug)) {
+      showError('Identifiant invalide : lettres minuscules, chiffres et tirets uniquement (2 à 50 caractères).', ['slug']);
+      return;
+    }
+
+    if (payload.password.length < 8) {
+      showError('Ton mot de passe doit contenir au moins 8 caractères.', ['password']);
+      return;
+    }
+
+    if (payload.booking_url && !/^https?:\/\/.+/i.test(payload.booking_url)) {
+      showError('L\'URL de rendez-vous doit commencer par http:// ou https://.', ['booking_url']);
       return;
     }
 
@@ -208,13 +245,20 @@
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.ok) {
-        msg.textContent = data.error || 'Erreur lors de la création.';
-        msg.className = 'msg err';
+        const errText = data.error || 'Erreur lors de la création.';
+        const fields = [];
+        if (/master password/i.test(errText) || /invitation/i.test(errText)) fields.push('master_password');
+        else if (/slug/i.test(errText) || /identifiant/i.test(errText) || /existe d[ée]j[àa]/i.test(errText)) fields.push('slug');
+        else if (/mot de passe/i.test(errText) || /password/i.test(errText)) fields.push('password');
+        else if (/nom/i.test(errText)) fields.push('nom');
+        else if (/booking/i.test(errText) || /url/i.test(errText)) fields.push('booking_url');
+        showError(errText, fields);
         btn.disabled = false;
         btn.textContent = 'Créer mon compte →';
         return;
       }
 
+      const msg = $('msg');
       msg.textContent = '✓ Ton compte est prêt !';
       msg.className = 'msg ok';
 
@@ -247,12 +291,15 @@
       $('password').value = '';
       $('booking_url').value = '';
     } catch (e) {
-      msg.textContent = 'Impossible de contacter le serveur. Réessaie dans quelques secondes.';
-      msg.className = 'msg err';
+      showError('Impossible de contacter le serveur. Réessaie dans quelques secondes.');
       btn.disabled = false;
       btn.textContent = 'Créer mon compte →';
     }
   }
+
+  FIELDS.forEach(id => {
+    $(id).addEventListener('input', () => $(id).classList.remove('error'));
+  });
 
   function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, c => ({

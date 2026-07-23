@@ -145,16 +145,34 @@
     setTimeout(() => t.className = 'toast', 3000);
   }
 
+  function clearLoginErrors() {
+    $('login-slug').classList.remove('error');
+    $('login-password').classList.remove('error');
+    $('login-error').style.display = 'none';
+  }
+
+  function showLoginError(text, fields = []) {
+    const err = $('login-error');
+    err.textContent = text;
+    err.style.display = 'block';
+    fields.forEach(id => $(id).classList.add('error'));
+  }
+
+  ['login-slug','login-password'].forEach(id => {
+    $(id)?.addEventListener('input', () => $(id).classList.remove('error'));
+  });
+
   async function handleLogin() {
     const slug = $('login-slug').value.trim().toLowerCase();
     const password = $('login-password').value;
-    const err = $('login-error');
     const btn = $('login-btn');
-    err.style.display = 'none';
+    clearLoginErrors();
 
-    if (!slug || !password) {
-      err.textContent = 'Renseigne le slug et le mot de passe.';
-      err.style.display = 'block';
+    const missing = [];
+    if (!slug) missing.push('login-slug');
+    if (!password) missing.push('login-password');
+    if (missing.length > 0) {
+      showLoginError('Renseigne le slug et le mot de passe.', missing);
       return;
     }
 
@@ -170,8 +188,7 @@
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
-        err.textContent = data.error || 'Erreur de connexion.';
-        err.style.display = 'block';
+        showLoginError(data.error || 'Erreur de connexion.', ['login-slug','login-password']);
         btn.disabled = false;
         btn.textContent = 'Accéder au dashboard →';
         return;
@@ -188,8 +205,7 @@
       $('app').style.display = 'flex';
       await loadDashboard();
     } catch (e) {
-      err.textContent = 'Impossible de contacter le serveur.';
-      err.style.display = 'block';
+      showLoginError('Impossible de contacter le serveur.');
       btn.disabled = false;
       btn.textContent = 'Accéder au dashboard →';
     }
