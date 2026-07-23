@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>ParrainApp · Accueil</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/app.css">
 <style>
   .top-parrains-list { display: flex; flex-direction: column; gap: 12px; }
@@ -20,19 +20,19 @@
     background: var(--purple); color: var(--white);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 14px;
   }
   .top-parrain .rank.gold { background: #F59E0B; }
   .top-parrain .rank.silver { background: #94A3B8; }
   .top-parrain .rank.bronze { background: #B45309; }
   .top-parrain .name { font-weight: 500; }
-  .top-parrain .amount { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--green); }
+  .top-parrain .amount { font-family: 'Montserrat', sans-serif; font-weight: 700; color: var(--green); }
   .recent-visit { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F3F4F6; }
   .recent-visit:last-child { border-bottom: none; }
   .recent-visit .info { display: flex; flex-direction: column; gap: 2px; }
   .recent-visit .prenom { font-weight: 500; font-size: 14px; }
   .recent-visit .meta { font-size: 12px; color: var(--gray); }
-  .recent-visit .amount { font-family: 'Syne', sans-serif; font-weight: 600; color: var(--green); }
+  .recent-visit .amount { font-family: 'Montserrat', sans-serif; font-weight: 600; color: var(--green); }
   .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -51,7 +51,7 @@
     <input type="text" id="login-slug" placeholder="Slug du salon (ex: coiffeur-jean)" autocomplete="username" autocapitalize="off">
     <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
     <p class="login-error" id="login-error"></p>
-    <button class="btn" onclick="handleLogin()" id="login-btn">Accéder au dashboard →</button>
+    <button class="btn" onclick="handleLogin()" id="login-btn">Accéder à mon espace →</button>
   </div>
 </div>
 
@@ -63,7 +63,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="logo">Parrain<span>App</span></div>
     <nav class="nav">
-      <a href="/dashboard" class="active"><span class="icon">📊</span> Dashboard</a>
+      <a href="/dashboard" class="active"><span class="icon">📊</span> Accueil</a>
       <a href="/parrains"><span class="icon">👥</span> Parrains</a>
       <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
       <a href="/offres"><span class="icon">✂️</span> Offres</a>
@@ -79,7 +79,7 @@
 
   <main class="main">
     <div class="page-header">
-      <h1>Dashboard</h1>
+      <h1>Accueil</h1>
       <p>Vue d'ensemble de ton programme de parrainage</p>
     </div>
 
@@ -95,7 +95,7 @@
         <div class="sub">visites validées</div>
       </div>
       <div class="stat">
-        <div class="label">CA généré</div>
+        <div class="label">Chiffre d'affaires généré</div>
         <div class="value green" id="stat-ca">—</div>
         <div class="sub">total parrainage</div>
       </div>
@@ -109,7 +109,7 @@
     <div class="grid-2">
       <div class="card">
         <h2>Top parrains</h2>
-        <p class="desc">Par CA généré</p>
+        <p class="desc">Par chiffre d'affaires généré</p>
         <div id="top-parrains" class="top-parrains-list"></div>
       </div>
 
@@ -190,7 +190,7 @@
       if (!res.ok || !data.ok) {
         showLoginError(data.error || 'Erreur de connexion.', ['login-slug','login-password']);
         btn.disabled = false;
-        btn.textContent = 'Accéder au dashboard →';
+        btn.textContent = 'Accéder à mon espace →';
         return;
       }
       try {
@@ -207,7 +207,7 @@
     } catch (e) {
       showLoginError('Impossible de contacter le serveur.');
       btn.disabled = false;
-      btn.textContent = 'Accéder au dashboard →';
+      btn.textContent = 'Accéder à mon espace →';
     }
   }
 
@@ -242,7 +242,7 @@
       const topParrains = [...data.parrains].sort((a, b) => b.ca_genere_chf - a.ca_genere_chf).slice(0, 5);
       const topEl = $('top-parrains');
       if (topParrains.length === 0 || topParrains[0].ca_genere_chf === 0) {
-        topEl.innerHTML = '<div class="empty" style="padding:24px"><div class="icon">🌱</div>Aucun CA généré pour le moment</div>';
+        topEl.innerHTML = '<div class="empty" style="padding:24px"><div class="icon">🌱</div>Aucun chiffre d\'affaires généré pour le moment</div>';
       } else {
         topEl.innerHTML = topParrains.filter(p => p.ca_genere_chf > 0).map((p, i) => `
           <div class="top-parrain">
@@ -286,7 +286,7 @@
         }).join('');
       }
     } catch (e) {
-      showToast('Erreur de chargement du dashboard', true);
+      showToast('Erreur de chargement', true);
     }
   }
 

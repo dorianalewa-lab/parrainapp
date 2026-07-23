@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp — Créer votre compte salon</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>ParrainApp · Créer votre compte salon</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -38,7 +38,7 @@
     box-shadow: 0 4px 40px rgba(91,33,182,0.08);
   }
   .logo {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 26px;
     font-weight: 700;
     margin-bottom: 4px;
@@ -80,7 +80,7 @@
     color: var(--white);
     border: none;
     border-radius: 12px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -145,7 +145,7 @@
 
 <div class="card">
   <div class="logo">Parrain<span>App</span></div>
-  <p class="subtitle">Crée ton compte salon en 30 secondes.<br>Tu configureras tes prestations, réductions et récompenses ensuite depuis ton dashboard.</p>
+  <p class="subtitle">Crée ton compte salon en 30 secondes.<br>Tu configureras tes prestations, réductions et récompenses ensuite depuis ton tableau de bord.</p>
 
   <label for="master_password">Code d'invitation ParrainApp</label>
   <input type="password" id="master_password" autocomplete="off" placeholder="Fourni par notre équipe">
@@ -159,9 +159,9 @@
   <input type="text" id="slug" placeholder="coiffeur-jean" autocapitalize="off">
   <div class="hint">Lettres minuscules, chiffres et tirets uniquement. Sera dans ton URL : <code style="background:#EDE9FE;color:#5B21B6;padding:1px 6px;border-radius:4px;font-size:11px">parrainapp.vercel.app/?salon=coiffeur-jean</code></div>
 
-  <label for="password">Mot de passe du dashboard</label>
+  <label for="password">Mot de passe d'accès</label>
   <input type="password" id="password" autocomplete="new-password">
-  <div class="hint">8 caractères minimum. C'est avec ça que tu te connecteras à ton back-office.</div>
+  <div class="hint">8 caractères minimum. C'est avec ça que tu te connecteras à ton espace.</div>
 
   <label for="booking_url">URL de prise de rendez-vous</label>
   <input type="url" id="booking_url" placeholder="https://tonsalon.ch">
@@ -279,7 +279,7 @@
         </div>
 
         <br>
-        <strong>Accès à ton dashboard :</strong><br>
+        <strong>Accès à ton espace :</strong><br>
         <a href="${origin}/dashboard" target="_blank">${origin}/dashboard</a><br>
         Connecte-toi avec ton identifiant court <code>${escapeHtml(data.salon.slug)}</code> et le mot de passe que tu viens de définir.
       `;

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp — Templates SMS</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>ParrainApp · Templates SMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/app.css">
 <style>
   .default-preview {
@@ -29,7 +29,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="logo">Parrain<span>App</span></div>
     <nav class="nav">
-      <a href="/dashboard"><span class="icon">📊</span> Dashboard</a>
+      <a href="/dashboard"><span class="icon">📊</span> Accueil</a>
       <a href="/parrains"><span class="icon">👥</span> Parrains</a>
       <a href="/filleuls"><span class="icon">👋</span> Filleuls</a>
       <a href="/offres"><span class="icon">✂️</span> Offres</a>
@@ -61,7 +61,7 @@
         <textarea id="sms_template_parrain" placeholder="Laisse vide pour utiliser le template par défaut ci-dessous"></textarea>
         <p class="hint">
           Variables disponibles : <code>{prenom}</code> <code>{salon}</code> <code>{lien}</code>.<br>
-          <strong>La variable <code>{lien}</code> est obligatoire</strong> si tu personnalises — c'est ce que le parrain partage.
+          <strong>La variable <code>{lien}</code> est obligatoire</strong> si tu personnalises. C'est ce que le parrain partage.
         </p>
 
         <label style="margin-top:16px">Template par défaut si tu laisses vide</label>
@@ -99,9 +99,9 @@
       <div class="card">
         <h2 style="font-size:15px">💡 Conseils</h2>
         <ul style="font-size:13px;color:var(--gray);line-height:1.7;padding-left:20px">
-          <li>Reste sous <strong>160 caractères</strong> quand possible — au-delà, l'opérateur peut découper en plusieurs SMS et te facturer plusieurs unités.</li>
-          <li>Évite les emojis compliqués et les caractères spéciaux (æ, œ, ¥) — ils cassent l'encodage GSM et divisent la limite par 2.</li>
-          <li>Un ton amical marche mieux qu'un ton formel — on est en SMS, pas en courrier.</li>
+          <li>Reste sous <strong>160 caractères</strong> quand possible. Au-delà, l'opérateur peut découper en plusieurs SMS et te facturer plusieurs unités.</li>
+          <li>Évite les emojis compliqués et les caractères spéciaux (æ, œ, ¥). Ils cassent l'encodage GSM et divisent la limite par 2.</li>
+          <li>Un ton amical marche mieux qu'un ton formel. On est en SMS, pas en courrier.</li>
         </ul>
       </div>
 

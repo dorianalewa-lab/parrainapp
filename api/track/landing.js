@@ -11,11 +11,11 @@ function renderNotFound(res) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.status(404).end(`<!DOCTYPE html>
 <html lang="fr"><head><meta charset="UTF-8"><title>Lien invalide</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   body { font-family: 'DM Sans', sans-serif; background: #F9F8FF; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; margin: 0; }
   .card { background: #fff; border-radius: 24px; padding: 40px 32px; max-width: 380px; text-align: center; box-shadow: 0 4px 40px rgba(91,33,182,0.08); }
-  h1 { font-family: 'Syne', sans-serif; font-size: 22px; color: #1E1B4B; margin: 12px 0; }
+  h1 { font-family: 'Montserrat', sans-serif; font-size: 22px; color: #1E1B4B; margin: 12px 0; }
   p { color: #6B7280; font-size: 14px; line-height: 1.6; }
 </style></head>
 <body><div class="card">
@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(parrainPrenom)} te recommande ${escapeHtml(salonNom)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -115,7 +115,7 @@ module.exports = async (req, res) => {
   .recommande { font-size: 14px; color: var(--gray); margin-bottom: 8px; }
   .recommande strong { color: var(--purple); font-weight: 500; }
   h1 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 26px;
     font-weight: 700;
     color: var(--dark);
@@ -123,7 +123,7 @@ module.exports = async (req, res) => {
     margin-bottom: 12px;
   }
   h2 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 18px;
     color: var(--dark);
     margin-bottom: 6px;
@@ -146,7 +146,7 @@ module.exports = async (req, res) => {
   }
   .parrain-bonus strong {
     display: block;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 15px;
     margin-bottom: 2px;
     color: var(--dark);
@@ -159,7 +159,7 @@ module.exports = async (req, res) => {
     color: var(--white);
   }
   .offer-box .pct {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 48px;
     font-weight: 700;
     line-height: 1;
@@ -174,7 +174,7 @@ module.exports = async (req, res) => {
     color: var(--white);
     border: none;
     border-radius: 12px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -202,7 +202,7 @@ module.exports = async (req, res) => {
     background: linear-gradient(135deg, #F9F8FF 0%, #EDE9FE 100%);
     border: 2px dashed var(--purple);
   }
-  .voucher-header { color: var(--purple); font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .voucher-header { color: var(--purple); font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
   .qr-wrap {
     background: var(--white);
     padding: 16px;
@@ -230,7 +230,7 @@ module.exports = async (req, res) => {
     background: var(--purple);
     color: var(--white);
     border-radius: 50%;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 12px;
     display: flex;

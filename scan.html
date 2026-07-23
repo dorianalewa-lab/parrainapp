@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ParrainApp — Scan bon</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>ParrainApp · Scanner un bon</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -54,7 +54,7 @@
   .status-icon.pending { background: var(--purple-light); color: var(--purple); }
 
   h1 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 24px;
     text-align: center;
     margin-bottom: 8px;
@@ -83,7 +83,7 @@
     margin-bottom: 4px;
   }
   .parrain-box .name {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 22px;
     font-weight: 700;
     color: var(--dark);
@@ -119,7 +119,7 @@
     color: var(--white);
     border: none;
     border-radius: 12px;
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -172,7 +172,7 @@
       <div class="status-icon err">✗</div>
       <h1>Code invalide</h1>
       <p class="subtitle">${msg || 'Ce bon ne correspond à aucun parrain de ton salon.'}</p>
-      <a class="btn btn-purple" href="/dashboard">Retour au dashboard</a>
+      <a class="btn btn-purple" href="/dashboard">Retour à l'accueil</a>
     `;
   }
 
@@ -182,7 +182,7 @@
       <h1>Bon de recommandation</h1>
       <p class="subtitle">Ce bon doit être scanné par le salon.</p>
       <p class="subtitle" style="margin-bottom:16px">Si tu es le salon, connecte-toi pour valider la visite.</p>
-      <a class="btn btn-purple" onclick="loginRedirect()">Je suis le salon — me connecter</a>
+      <a class="btn btn-purple" onclick="loginRedirect()">Je suis le salon, me connecter</a>
       <a class="btn btn-secondary" href="/r/${encodeURIComponent(code)}">Voir la recommandation</a>
     `;
   }
@@ -200,7 +200,7 @@
         Ouvre l'app <strong>Caméra</strong> de ton téléphone et pointe-la sur le QR code du filleul.<br><br>
         La page de validation s'ouvre automatiquement.
       </p>
-      <a class="btn btn-purple" href="/dashboard">Retour au dashboard</a>
+      <a class="btn btn-purple" href="/dashboard">Retour à l'accueil</a>
     `;
   }
 
@@ -213,10 +213,10 @@
   async function renderValidateForm(parrain, prestations, salon) {
     const prenom = escapeHtml(parrain.prenom);
 
-    let optionsHtml = '<option value="">— Aucune (saisie libre) —</option>';
+    let optionsHtml = '<option value="">Aucune (saisie libre)</option>';
     if (prestations.length > 0) {
       optionsHtml += prestations.map(p =>
-        `<option value="${p.id}" data-prix="${p.prix_chf}">${escapeHtml(p.nom)} — ${p.prix_chf} CHF</option>`
+        `<option value="${p.id}" data-prix="${p.prix_chf}">${escapeHtml(p.nom)} · ${p.prix_chf} CHF</option>`
       ).join('');
     }
     const noPrestationsHint = prestations.length === 0
@@ -296,7 +296,7 @@
         <h1>Visite enregistrée !</h1>
         <p class="subtitle">${data.sms_sent ? 'SMS de récompense envoyé au parrain.' : (data.warning || 'Visite validée.')}</p>
         <a class="btn btn-purple" href="/scan">Scanner un autre bon</a>
-        <a class="btn btn-secondary" href="/dashboard">Retour au dashboard</a>
+        <a class="btn btn-secondary" href="/dashboard">Retour à l'accueil</a>
       `;
     } catch (e) {
       err.textContent = 'Impossible de contacter le serveur.';
