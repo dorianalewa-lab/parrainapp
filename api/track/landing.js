@@ -1,3 +1,4 @@
+const QRCode = require('qrcode');
 const { findParrainByCode, findSalonBySlug, incrementCounter } = require('../_lib/airtable');
 
 function escapeHtml(s) {
@@ -43,6 +44,22 @@ module.exports = async (req, res) => {
   const pourcentage = salonRecord?.get('pourcentage_reduc_filleul') || 15;
   const hasBookingUrl = !!salonRecord?.get('booking_url');
 
+  const baseUrl = process.env.PUBLIC_BASE_URL || `https://${req.headers.host}`;
+  const scanUrl = `${baseUrl}/scan?code=${encodeURIComponent(code)}`;
+  let qrSvg = '';
+  try {
+    qrSvg = await QRCode.toString(scanUrl, {
+      type: 'svg',
+      margin: 1,
+      width: 240,
+      color: { dark: '#1E1B4B', light: '#FFFFFF' },
+      errorCorrectionLevel: 'M',
+    });
+    qrSvg = qrSvg.replace('<svg ', '<svg style="width:100%;height:auto;max-width:240px" ');
+  } catch (err) {
+    console.error('[landing] QR generation failed:', err);
+  }
+
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store, max-age=0');
   res.status(200).end(`<!DOCTYPE html>
@@ -67,21 +84,23 @@ module.exports = async (req, res) => {
     font-family: 'DM Sans', sans-serif;
     background: var(--light);
     min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container {
+    max-width: 420px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
+    gap: 20px;
   }
   .card {
     background: var(--white);
     border-radius: 24px;
-    max-width: 420px;
-    width: 100%;
     padding: 40px 32px;
     box-shadow: 0 4px 40px rgba(91,33,182,0.08);
     text-align: center;
   }
+  .card.compact { padding: 28px 24px; }
   .avatar {
     width: 72px;
     height: 72px;
@@ -102,6 +121,12 @@ module.exports = async (req, res) => {
     color: var(--dark);
     line-height: 1.3;
     margin-bottom: 12px;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    color: var(--dark);
+    margin-bottom: 6px;
   }
   .salon-name { color: var(--purple); }
   .subtitle {
@@ -158,6 +183,12 @@ module.exports = async (req, res) => {
     margin-bottom: 12px;
   }
   .btn:hover { background: var(--purple-mid); }
+  .btn-outline {
+    background: var(--white);
+    color: var(--purple);
+    border: 1.5px solid var(--purple);
+  }
+  .btn-outline:hover { background: var(--purple-light); }
   .placeholder {
     text-align: center;
     padding: 16px;
@@ -167,37 +198,103 @@ module.exports = async (req, res) => {
     font-size: 14px;
     line-height: 1.5;
   }
-  .powered { margin-top: 24px; font-size: 12px; color: #C4B5FD; }
+  .voucher-card {
+    background: linear-gradient(135deg, #F9F8FF 0%, #EDE9FE 100%);
+    border: 2px dashed var(--purple);
+  }
+  .voucher-header { color: var(--purple); font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .qr-wrap {
+    background: var(--white);
+    padding: 16px;
+    border-radius: 16px;
+    display: inline-block;
+    margin: 12px 0;
+  }
+  .voucher-instructions {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.6;
+    margin-top: 12px;
+    text-align: left;
+    padding: 0 8px;
+  }
+  .voucher-instructions strong { color: var(--dark); }
+  .steps { list-style: none; padding: 0; margin: 12px 0 0; text-align: left; }
+  .steps li { padding: 6px 0 6px 32px; position: relative; font-size: 13px; color: var(--dark); line-height: 1.5; }
+  .steps li::before {
+    content: counter(step);
+    counter-increment: step;
+    position: absolute;
+    left: 0; top: 6px;
+    width: 22px; height: 22px;
+    background: var(--purple);
+    color: var(--white);
+    border-radius: 50%;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .steps { counter-reset: step; }
+  .powered { margin-top: 12px; font-size: 12px; color: #C4B5FD; text-align: center; }
   .powered span { color: var(--purple); font-weight: 500; }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="avatar">✂️</div>
+<div class="container">
 
-  <p class="recommande"><strong>${escapeHtml(parrainPrenom)}</strong> te recommande</p>
+  <div class="card">
+    <div class="avatar">✂️</div>
 
-  <h1>Viens découvrir <span class="salon-name">${escapeHtml(salonNom)}</span></h1>
+    <p class="recommande"><strong>${escapeHtml(parrainPrenom)}</strong> te recommande</p>
 
-  <p class="subtitle">Tu as reçu une invitation personnelle. Prends rendez-vous et bénéficie d'une offre exclusive pour ta première visite.</p>
+    <h1>Viens découvrir <span class="salon-name">${escapeHtml(salonNom)}</span></h1>
 
-  <div class="offer-box">
-    <div class="pct">-${escapeHtml(pourcentage)}%</div>
-    <div class="label">sur ta première visite</div>
+    <p class="subtitle">Tu as reçu une invitation personnelle. Prends rendez-vous et bénéficie d'une offre exclusive pour ta première visite.</p>
+
+    <div class="offer-box">
+      <div class="pct">-${escapeHtml(pourcentage)}%</div>
+      <div class="label">sur ta première visite</div>
+    </div>
+
+    <div class="parrain-bonus">
+      <strong>Et ${escapeHtml(parrainPrenom)} ?</strong>
+      Recevra aussi une récompense de notre part dès que tu viens nous rendre visite. 🎁
+    </div>
+
+    ${hasBookingUrl
+      ? `<a class="btn" href="/api/track/rdv?code=${encodeURIComponent(code)}" rel="noopener">Prendre rendez-vous →</a>`
+      : `<p class="placeholder">${escapeHtml(salonNom)} te contactera bientôt pour organiser ton rendez-vous.</p>`
+    }
   </div>
 
-  <div class="parrain-bonus">
-    <strong>Et ${escapeHtml(parrainPrenom)} ?</strong>
-    Recevra aussi une récompense de notre part dès que tu viens nous rendre visite. 🎁
-  </div>
+  ${qrSvg ? `
+  <div class="card voucher-card">
+    <div class="voucher-header">🎁 Ton bon de recommandation</div>
+    <h2>À montrer au salon</h2>
 
-  ${hasBookingUrl
-    ? `<a class="btn" href="/api/track/rdv?code=${encodeURIComponent(code)}" rel="noopener">Prendre rendez-vous →</a>`
-    : `<p class="placeholder">${escapeHtml(salonNom)} te contactera bientôt pour organiser ton rendez-vous.</p>`
-  }
+    <div class="qr-wrap">
+      ${qrSvg}
+    </div>
+
+    <ol class="steps">
+      <li>Prends rendez-vous chez ${escapeHtml(salonNom)}</li>
+      <li>Le jour de ta visite, montre ce QR code au salon</li>
+      <li>Le salon le scanne et enregistre ta venue</li>
+      <li>${escapeHtml(parrainPrenom)} reçoit sa récompense 🎉</li>
+    </ol>
+
+    <p class="voucher-instructions" style="text-align:center;margin-top:16px">
+      💡 <strong>Astuce</strong> : ajoute cette page à tes favoris ou fais une capture d'écran du QR pour l'avoir sous la main le jour J.
+    </p>
+  </div>
+  ` : ''}
 
   <p class="powered">Propulsé par <span>ParrainApp</span></p>
+
 </div>
 
 </body>

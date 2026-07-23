@@ -175,6 +175,14 @@
         btn.textContent = 'Accéder au dashboard →';
         return;
       }
+      try {
+        const returnTo = sessionStorage.getItem('after_login');
+        if (returnTo) {
+          sessionStorage.removeItem('after_login');
+          window.location.href = returnTo;
+          return;
+        }
+      } catch {}
       $('login-wrap').style.display = 'none';
       $('app').style.display = 'flex';
       await loadDashboard();
@@ -274,6 +282,14 @@
     try {
       const res = await fetch('/api/dashboard/clients', { credentials: 'include' });
       if (res.ok) {
+        try {
+          const returnTo = sessionStorage.getItem('after_login');
+          if (returnTo) {
+            sessionStorage.removeItem('after_login');
+            window.location.href = returnTo;
+            return;
+          }
+        } catch {}
         $('login-wrap').style.display = 'none';
         $('app').style.display = 'flex';
         await loadDashboard();

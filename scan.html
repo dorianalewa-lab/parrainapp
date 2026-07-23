@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParrainApp — Scan bon</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --purple: #5B21B6;
+    --purple-light: #EDE9FE;
+    --purple-mid: #7C3AED;
+    --dark: #1E1B4B;
+    --gray: #6B7280;
+    --gray-light: #E5E7EB;
+    --light: #F9F8FF;
+    --white: #FFFFFF;
+    --green: #059669;
+    --green-light: #D1FAE5;
+    --red: #DC2626;
+    --red-light: #FEE2E2;
+  }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--light);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    color: var(--dark);
+  }
+  .card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 40px 32px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 4px 40px rgba(91,33,182,0.08);
+  }
+  .status-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 36px;
+  }
+  .status-icon.ok { background: var(--green-light); color: var(--green); }
+  .status-icon.err { background: var(--red-light); color: var(--red); }
+  .status-icon.pending { background: var(--purple-light); color: var(--purple); }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--gray);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .parrain-box {
+    background: var(--purple-light);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .parrain-box .label {
+    font-size: 12px;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .parrain-box .name {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 14px 0 6px;
+  }
+  input, select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--dark);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus { border-color: var(--purple-mid); }
+  .hint { font-size: 12px; color: var(--gray); margin-top: 4px; }
+  .hint a { color: var(--purple); }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background 0.2s;
+    text-decoration: none;
+    text-align: center;
+  }
+  .btn:hover { background: #047857; }
+  .btn:disabled { background: #A7F3D0; cursor: not-allowed; }
+  .btn-purple {
+    background: var(--purple);
+  }
+  .btn-purple:hover { background: var(--purple-mid); }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--purple);
+    border: 1.5px solid var(--purple);
+    margin-top: 8px;
+  }
+  .btn-secondary:hover { background: var(--purple-light); }
+
+  .err-msg {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--red-light);
+    color: var(--red);
+    border-radius: 10px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .loading { text-align: center; padding: 32px; color: var(--gray); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="loading" id="loading">Vérification du code…</div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  const params = new URLSearchParams(window.location.search);
+  const code = (params.get('code') || '').trim().toLowerCase();
+
+  function renderInvalid(msg) {
+    $('card').innerHTML = `
+      <div class="status-icon err">✗</div>
+      <h1>Code invalide</h1>
+      <p class="subtitle">${msg || 'Ce bon ne correspond à aucun parrain de ton salon.'}</p>
+      <a class="btn btn-purple" href="/dashboard">Retour au dashboard</a>
+    `;
+  }
+
+  function renderUnauth() {
+    $('card').innerHTML = `
+      <div class="status-icon pending">🔒</div>
+      <h1>Bon de recommandation</h1>
+      <p class="subtitle">Ce bon doit être scanné par le salon.</p>
+      <p class="subtitle" style="margin-bottom:16px">Si tu es le salon, connecte-toi pour valider la visite.</p>
+      <a class="btn btn-purple" onclick="loginRedirect()">Je suis le salon — me connecter</a>
+      <a class="btn btn-secondary" href="/r/${encodeURIComponent(code)}">Voir la recommandation</a>
+    `;
+  }
+
+  function loginRedirect() {
+    try { sessionStorage.setItem('after_login', window.location.href); } catch {}
+    window.location.href = '/dashboard';
+  }
+
+  function renderNoCode() {
+    $('card').innerHTML = `
+      <div class="status-icon pending">📸</div>
+      <h1>Scanner un bon</h1>
+      <p class="subtitle">
+        Ouvre l'app <strong>Caméra</strong> de ton téléphone et pointe-la sur le QR code du filleul.<br><br>
+        La page de validation s'ouvre automatiquement.
+      </p>
+      <a class="btn btn-purple" href="/dashboard">Retour au dashboard</a>
+    `;
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    })[c]);
+  }
+
+  async function renderValidateForm(parrain, prestations, salon) {
+    const prenom = escapeHtml(parrain.prenom);
+    const panierMoyen = salon.panier_moyen_chf || 65;
+
+    let optionsHtml = '<option value="">— Aucune (saisie libre) —</option>';
+    if (prestations.length > 0) {
+      optionsHtml += prestations.map(p =>
+        `<option value="${p.id}" data-prix="${p.prix_chf}">${escapeHtml(p.nom)} — ${p.prix_chf} CHF</option>`
+      ).join('');
+    }
+    const noPrestationsHint = prestations.length === 0
+      ? '<p class="hint" style="margin-top:8px"><a href="/offres">Configure tes prestations →</a></p>'
+      : '';
+
+    $('card').innerHTML = `
+      <div class="status-icon ok">✓</div>
+      <h1>Bon valide</h1>
+      <p class="subtitle">Enregistre la visite. Un SMS de récompense partira automatiquement au parrain.</p>
+
+      <div class="parrain-box">
+        <div class="label">Bon reçu de</div>
+        <div class="name">${prenom}</div>
+      </div>
+
+      <label for="prestation">Prestation</label>
+      <select id="prestation" onchange="onPrestationChange()">${optionsHtml}</select>
+      ${noPrestationsHint}
+
+      <label for="panier">Panier réalisé (CHF)</label>
+      <input type="number" id="panier" min="1" step="1" value="${panierMoyen}">
+
+      <p class="err-msg" id="err"></p>
+
+      <button class="btn" onclick="submitVisit()" id="btn-submit">Valider la visite ✓</button>
+      <a class="btn btn-secondary" href="/dashboard">Annuler</a>
+    `;
+  }
+
+  window.onPrestationChange = function () {
+    const sel = $('prestation');
+    const opt = sel.options[sel.selectedIndex];
+    const prix = opt?.dataset?.prix;
+    if (prix) $('panier').value = prix;
+  };
+
+  window.submitVisit = async function () {
+    const btn = $('btn-submit');
+    const err = $('err');
+    err.style.display = 'none';
+
+    const prestationId = $('prestation').value || null;
+    const panier = Number($('panier').value);
+
+    if (!panier || panier <= 0) {
+      err.textContent = 'Panier invalide.';
+      err.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Validation…';
+
+    try {
+      const res = await fetch('/api/dashboard/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          parrain_id: window._parrainId,
+          prestation_id: prestationId,
+          panier_chf: panier,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        err.textContent = data.error || 'Erreur.';
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Valider la visite ✓';
+        return;
+      }
+
+      $('card').innerHTML = `
+        <div class="status-icon ok">✓</div>
+        <h1>Visite enregistrée !</h1>
+        <p class="subtitle">${data.sms_sent ? 'SMS de récompense envoyé au parrain.' : (data.warning || 'Visite validée.')}</p>
+        <a class="btn btn-purple" href="/scan">Scanner un autre bon</a>
+        <a class="btn btn-secondary" href="/dashboard">Retour au dashboard</a>
+      `;
+    } catch (e) {
+      err.textContent = 'Impossible de contacter le serveur.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Valider la visite ✓';
+    }
+  };
+
+  async function boot() {
+    if (!code) {
+      renderNoCode();
+      return;
+    }
+    if (!/^[a-z0-9]{4,12}$/.test(code)) {
+      renderInvalid('Format de code invalide.');
+      return;
+    }
+
+    try {
+      const [clientsRes, prestationsRes] = await Promise.all([
+        fetch('/api/dashboard/clients', { credentials: 'include' }),
+        fetch('/api/dashboard/prestations', { credentials: 'include' }),
+      ]);
+
+      if (clientsRes.status === 401) {
+        renderUnauth();
+        return;
+      }
+
+      const data = await clientsRes.json();
+      if (!data.ok) throw new Error(data.error || 'error');
+
+      const parrain = data.parrains.find(p => (p.code_court || '').toLowerCase() === code);
+      if (!parrain) {
+        renderInvalid(`Aucun parrain avec le code "${code}" chez ${data.salon.nom}. Le bon appartient peut-être à un autre salon.`);
+        return;
+      }
+
+      const pData = await prestationsRes.json().catch(() => ({ prestations: [] }));
+      window._parrainId = parrain.id;
+      renderValidateForm(parrain, pData.prestations || [], data.salon);
+    } catch (e) {
+      renderInvalid('Erreur de chargement. Réessaie dans quelques secondes.');
+    }
+  }
+
+  boot();
+</script>
+</body>
+</html>
